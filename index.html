@@ -692,8 +692,53 @@
         .project-points { list-style: none; padding: 0; margin: 0 0 12px; }
         .project-points li { font-size: 0.8rem; color: var(--text-secondary); padding-left: 18px; position: relative; margin-bottom: 5px; }
         .project-points li::before { content: "✦"; position: absolute; left: 0; top: 2px; font-size: 0.55rem; color: var(--accent-gold); }
-        .project-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+        .project-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
         .project-tag { font-size: 0.7rem; padding: 3px 12px; border-radius: var(--radius-pill); background: var(--badge-bg); color: var(--badge-text); font-weight: 600; border: 1px solid var(--border); }
+        .project-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: var(--radius-pill);
+            background: linear-gradient(135deg, var(--accent-gold-light), var(--accent-gold));
+            color: #4a3c1f;
+            font-weight: 700;
+            font-size: 0.8rem;
+            letter-spacing: 0.02em;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+        }
+        .project-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(212, 175, 55, 0.45);
+            color: #4a3c1f;
+        }
+        .project-link svg {
+            width: 14px;
+            height: 14px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        .game-embed {
+            margin-top: 16px;
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+            background: #000;
+        }
+        .game-embed iframe {
+            width: 100%;
+            height: 450px;
+            border: none;
+            display: block;
+        }
         .skills-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
         @media (min-width: 560px) { .skills-grid { grid-template-columns: repeat(2, 1fr); } }
         @media (min-width: 900px) { .skills-grid { grid-template-columns: repeat(3, 1fr); } }
@@ -715,7 +760,6 @@
         .edu-detail { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.6; }
         .edu-detail li { list-style: none; padding-left: 18px; position: relative; margin-bottom: 6px; }
         .edu-detail li::before { content: "✦"; position: absolute; left: 0; top: 2px; font-size: 0.6rem; color: var(--accent-gold); }
-        /* 证书图片网格 */
         .certs-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -815,6 +859,7 @@
             .cert-item img { height: 120px !important; }
             .footer { color: #a09488 !important; font-size: 8pt; }
             .highlights-grid, .skills-grid { grid-template-columns: 1fr 1fr !important; }
+            .project-link, .game-embed { display: none !important; }
             @page { margin: 1.5cm; }
         }
         @media (min-width: 768px) {
@@ -823,6 +868,7 @@
             .hero-inner { padding: 40px 24px 0; }
             .tab-panel { padding: 24px 20px; }
             .cert-item img { height: 200px; }
+            .game-embed iframe { height: 500px; }
         }
         @media (min-width: 1024px) {
             .section { padding: 44px 32px; }
@@ -889,9 +935,12 @@
                 { number: "高中", suffix: "成绩稳定", title: "扎实数理基础", desc: "高考录取广东工业大学，具备良好的逻辑分析与自主学习能力。" }
             ],
             projects: [
-                { id: "proj1", name: "基于 Obsidian 的个人认知与知识体系构建", time: "持续进行中", desc: "利用 Obsidian 双链、标签、图谱等功能，搭建跨领域知识管理网络，提升知识调用与联想效率。", points: ["围绕智能建造、哲学、逻辑学等主题开展自主阅读与笔记整理，通过双向链接构建认知网络", "运用\"刨根问底\"式追问方法，对日常现象进行多层级归因分析，输出结构化思考笔记", "定期复盘笔记分类与标签体系，优化检索路径与知识复用流程", "在安静环境中进行深度工作训练，逐步提升单次专注时长与任务完成质量"], tags: ["Obsidian", "知识管理", "双链笔记", "Markdown", "深度思考"] },
-                { id: "proj2", name: "个人健身与自律管理实践", time: "2024 - 至今", desc: "制定并执行系统力量训练计划，建立\"目标设定—计划拆解—执行复盘\"的自我管理流程。", points: ["保持每周规律训练，累计坚持健身两年以上，体能水平和体型得到明显改善", "记录训练日志与身体指标，持续优化训练动作、强度与恢复策略", "主动学习运动营养与恢复知识，结合自身情况调整饮食与作息", "为身边同学提供健身入门建议，帮助建立规律运动习惯"], tags: ["力量训练", "自律管理", "复盘优化", "运动营养"] },
-                { id: "proj3", name: "GitHub 账号建设与自主学习探索", time: "持续进行中", desc: "创建并维护 GitHub 账号（super11double），用于记录学习过程、管理练习代码与笔记文档。", points: ["利用开源平台了解版本控制、代码协作与开源社区基本流程", "使用 Markdown 编写结构化学习文档，为后续智能建造专业课程学习积累素材", "持续探索编程与智能建造相关工具链", "初步建立技术学习习惯与开源协作意识"], tags: ["GitHub", "版本控制", "Markdown", "开源学习"] }
+                { id: "proj1", name: "基于 Obsidian 的个人认知与知识体系构建", time: "持续进行中", desc: "利用 Obsidian 双链、标签、图谱等功能，搭建跨领域知识管理网络，提升知识调用与联想效率。", points: ["围绕智能建造、哲学、逻辑学等主题开展自主阅读与笔记整理，通过双向链接构建认知网络", "运用\"刨根问底\"式追问方法，对日常现象进行多层级归因分析，输出结构化思考笔记", "定期复盘笔记分类与标签体系，优化检索路径与知识复用流程", "在安静环境中进行深度工作训练，逐步提升单次专注时长与任务完成质量"], tags: ["Obsidian", "知识管理", "双链笔记", "Markdown", "深度思考"], link: null },
+                { id: "proj2", name: "个人健身与自律管理实践", time: "2024 - 至今", desc: "制定并执行系统力量训练计划，建立\"目标设定—计划拆解—执行复盘\"的自我管理流程。", points: ["保持每周规律训练，累计坚持健身两年以上，体能水平和体型得到明显改善", "记录训练日志与身体指标，持续优化训练动作、强度与恢复策略", "主动学习运动营养与恢复知识，结合自身情况调整饮食与作息", "为身边同学提供健身入门建议，帮助建立规律运动习惯"], tags: ["力量训练", "自律管理", "复盘优化", "运动营养"], link: null },
+                { id: "proj3", name: "GitHub 账号建设与自主学习探索", time: "持续进行中", desc: "创建并维护 GitHub 账号（super11double），用于记录学习过程、管理练习代码与笔记文档。", points: ["利用开源平台了解版本控制、代码协作与开源社区基本流程", "使用 Markdown 编写结构化学习文档，为后续智能建造专业课程学习积累素材", "持续探索编程与智能建造相关工具链", "初步建立技术学习习惯与开源协作意识"], tags: ["GitHub", "版本控制", "Markdown", "开源学习"], link: null },
+                { id: "proj4", name: "坦克大作战", time: "个人作品", desc: "使用原生 JavaScript 和 Canvas 开发的经典坦克对战游戏，玩家操控坦克在战场上移动、射击，击败敌方坦克。", points: ["实现玩家坦克移动与射击，支持键盘控制", "敌方坦克 AI 自动寻路与攻击，具备简单智能", "包含砖墙、钢墙等可破坏地形，碰撞检测完整", "具备音效、得分系统和游戏结束判定"], tags: ["JavaScript", "Canvas", "游戏开发", "AI"], link: "index (2).html", embed: true },
+                { id: "proj5", name: "小飞机游戏", time: "个人作品", desc: "使用原生 JavaScript 和 Canvas 开发的经典飞机射击游戏，玩家操控战机在星空中躲避敌机、击落敌机。", points: ["实现战机移动与射击，支持键盘或鼠标控制", "敌机自动生成与移动，具备简单飞行轨迹", "包含碰撞检测、得分系统和生命值", "具备粒子特效和简单音效"], tags: ["JavaScript", "Canvas", "游戏开发", "射击"], link: "index (3).html", embed: true },
+                { id: "proj6", name: "贪吃蛇游戏", time: "个人作品", desc: "使用原生 JavaScript 和 Canvas 开发的经典贪吃蛇游戏，玩家控制蛇在网格中移动，吃到食物变长，避免撞墙或撞到自己。", points: ["实现蛇的移动、转向与吃食物增长", "随机生成食物，得分越高蛇越长", "包含碰撞检测（墙壁和自身）与游戏结束判定", "支持键盘方向键控制，可调节游戏速度"], tags: ["JavaScript", "Canvas", "游戏开发", "经典"], link: "index (4).html", embed: true }
             ],
             skills: [
                 { name: "知识管理与认知体系", level: 72, label: "熟练", icon: "book", color: "#678c98" },
@@ -1011,10 +1060,10 @@
             const container = el('div', { class: 'tabs-container', id: 'tabsContainer' });
             const tabList = el('div', { class: 'tab-list', role: 'tablist' });
             const panels = [];
-            const shortNames = ['Obsidian 知识体系', '健身自律实践', 'GitHub 学习'];
+            const shortNames = ['Obsidian 知识体系', '健身自律实践', 'GitHub 学习', '坦克大作战', '小飞机游戏', '贪吃蛇游戏'];
             resume.projects.forEach((proj, index) => {
                 const tabBtn = el('button', { class: 'tab-btn', role: 'tab', 'aria-selected': index === 0 ? 'true' : 'false', tabindex: index === 0 ? '0' : '-1' });
-                tabBtn.textContent = shortNames[index]; tabBtn.addEventListener('click', () => activateTab(index)); tabBtn.addEventListener('keydown', (e) => handleTabKeydown(e, index));
+                tabBtn.textContent = shortNames[index] || proj.name; tabBtn.addEventListener('click', () => activateTab(index)); tabBtn.addEventListener('keydown', (e) => handleTabKeydown(e, index));
                 tabList.appendChild(tabBtn);
                 const panel = el('div', { class: 'tab-panel', role: 'tabpanel', hidden: index !== 0 ? '' : null });
                 const card = el('div', { class: 'project-card' });
@@ -1022,6 +1071,16 @@
                 card.appendChild(cardHeader); card.appendChild(el('p', { class: 'project-desc', text: proj.desc }));
                 const ul = el('ul', { class: 'project-points' }); proj.points.forEach(p => ul.appendChild(el('li', { text: p }))); card.appendChild(ul);
                 const tags = el('div', { class: 'project-tags' }); proj.tags.forEach(t => tags.appendChild(el('span', { class: 'project-tag', text: t }))); card.appendChild(tags);
+                if (proj.link) {
+                    const link = el('a', { class: 'project-link', href: proj.link, target: '_blank', rel: 'noopener noreferrer' });
+                    link.appendChild(svgIcon('sparkle')); link.appendChild(document.createTextNode('在新窗口打开游戏')); card.appendChild(link);
+                }
+                if (proj.embed) {
+                    const gameEmbed = el('div', { class: 'game-embed' });
+                    const iframe = el('iframe', { src: proj.link, title: proj.name, loading: 'lazy' });
+                    gameEmbed.appendChild(iframe);
+                    card.appendChild(gameEmbed);
+                }
                 panel.appendChild(card); panels.push(panel);
             });
             container.appendChild(tabList); panels.forEach(p => container.appendChild(p)); section.appendChild(container);

@@ -1,0 +1,203 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0" />
+  <meta name="theme-color" content="#0a0e27" />
+  <title>星际雷霆 · Stellar Thunder</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <!-- 游戏画布容器 -->
+  <div id="game-wrapper">
+    <canvas id="game"></canvas>
+
+    <!-- 覆盖层 UI（由 JS 切换显示） -->
+    <div id="ui-layer" class="ui-layer">
+
+      <!-- 标题界面 -->
+      <div id="screen-title" class="screen active">
+        <div class="title-logo">
+          <h1 class="glow-title">星际雷霆</h1>
+          <p class="glow-sub">STELLAR&nbsp;THUNDER</p>
+        </div>
+        <div class="menu-btns">
+          <button class="neon-btn" data-action="start">▶ 开始游戏</button>
+          <button class="neon-btn" data-action="mode">🎮 选择模式</button>
+          <button class="neon-btn" data-action="hangar">✈️ 战机仓库</button>
+          <button class="neon-btn" data-action="rank">🏆 战绩排行</button>
+          <button class="neon-btn" data-action="settings">⚙️ 游戏设置</button>
+        </div>
+        <div class="title-footer">
+          <span>v1.0</span>
+          <span>最高分: <b id="title-highscore">0</b></span>
+        </div>
+      </div>
+
+      <!-- 模式选择 -->
+      <div id="screen-mode" class="screen">
+        <h2 class="screen-title">选择模式</h2>
+        <div class="mode-grid">
+          <button class="mode-card" data-mode="level">
+            <span class="mode-icon">🎯</span>
+            <span class="mode-name">闯关模式</span>
+            <span class="mode-desc">6章主线 · Boss决战</span>
+          </button>
+          <button class="mode-card" data-mode="endless">
+            <span class="mode-icon">♾️</span>
+            <span class="mode-name">无尽模式</span>
+            <span class="mode-desc">无限刷新 · 冲击排行</span>
+          </button>
+          <button class="mode-card" data-mode="timed">
+            <span class="mode-icon">⏱️</span>
+            <span class="mode-name">限时挑战</span>
+            <span class="mode-desc">3分钟 · 倍率连击</span>
+          </button>
+        </div>
+        <button class="neon-btn ghost" data-action="back-title">← 返回</button>
+      </div>
+
+      <!-- 战机仓库 -->
+      <div id="screen-hangar" class="screen">
+        <h2 class="screen-title">战机仓库</h2>
+        <div id="hangar-list" class="hangar-list"></div>
+        <div id="hangar-detail" class="hangar-detail"></div>
+        <button class="neon-btn ghost" data-action="back-title">← 返回</button>
+      </div>
+
+      <!-- 战绩排行 -->
+      <div id="screen-rank" class="screen">
+        <h2 class="screen-title">战绩排行</h2>
+        <div id="rank-list" class="rank-list"></div>
+        <button class="neon-btn ghost" data-action="back-title">← 返回</button>
+      </div>
+
+      <!-- 设置 -->
+      <div id="screen-settings" class="screen">
+        <h2 class="screen-title">游戏设置</h2>
+        <div class="settings-row">
+          <label>音效音量</label>
+          <input type="range" id="set-sfx" min="0" max="100" value="60" />
+          <span id="set-sfx-val">60</span>
+        </div>
+        <div class="settings-row">
+          <label>背景音乐</label>
+          <input type="range" id="set-bgm" min="0" max="100" value="40" />
+          <span id="set-bgm-val">40</span>
+        </div>
+        <div class="settings-row">
+          <label>屏幕震动</label>
+          <input type="checkbox" id="set-shake" checked />
+        </div>
+        <div class="settings-row">
+          <label>低性能模式(减少粒子)</label>
+          <input type="checkbox" id="set-lowperf" />
+        </div>
+        <div class="settings-row">
+          <button class="neon-btn danger" data-action="reset-save">🗑️ 清除存档</button>
+        </div>
+        <button class="neon-btn ghost" data-action="back-title">← 返回</button>
+      </div>
+
+      <!-- 战斗内 HUD -->
+      <div id="screen-hud" class="hud">
+        <div class="hud-top">
+          <button class="hud-btn" data-action="pause">⏸</button>
+          <span id="hud-stage" class="hud-stage">第1章-第1关</span>
+          <span id="hud-score" class="hud-score">0</span>
+        </div>
+        <div class="hud-bars">
+          <div class="bar-row"><span class="bar-label">❤</span>
+            <div class="bar"><div id="bar-hp" class="bar-fill hp"></div></div>
+          </div>
+          <div class="bar-row"><span class="bar-label">⚡</span>
+            <div class="bar"><div id="bar-sp" class="bar-fill sp"></div></div>
+            <span id="hud-combo" class="hud-combo">×0</span>
+          </div>
+        </div>
+        <div class="hud-stats">
+          <span class="stat">🛡<b id="hud-shield">0</b></span>
+          <span class="stat">💣<b id="hud-bomb">3</b></span>
+          <span class="stat">🔥Lv.<b id="hud-power">1</b></span>
+          <span class="stat" id="hud-timer-wrap" style="display:none">⏱<b id="hud-timer">3:00</b></span>
+        </div>
+        <div id="boss-bar-wrap" class="boss-bar-wrap" style="display:none">
+          <div class="boss-name" id="boss-name"></div>
+          <div class="bar boss"><div id="bar-boss" class="bar-fill boss"></div></div>
+        </div>
+        <button id="btn-skill" class="skill-btn" data-action="skill">💥<span id="skill-cd"></span></button>
+      </div>
+
+      <!-- 暂停菜单 -->
+      <div id="screen-pause" class="screen overlay">
+        <h2 class="screen-title">已暂停</h2>
+        <div class="menu-btns">
+          <button class="neon-btn" data-action="resume">▶ 继续</button>
+          <button class="neon-btn ghost" data-action="restart">🔄 重新开始</button>
+          <button class="neon-btn ghost" data-action="quit">🚪 退出到主菜单</button>
+        </div>
+      </div>
+
+      <!-- 技能芯片 3 选 1 -->
+      <div id="screen-chip" class="screen overlay">
+        <h2 class="screen-title">技能强化 3选1</h2>
+        <div id="chip-cards" class="chip-cards"></div>
+        <p class="chip-tip">已选芯片会永久叠加到本局</p>
+      </div>
+
+      <!-- 结算界面 -->
+      <div id="screen-result" class="screen overlay">
+        <h2 id="result-title" class="screen-title">胜利</h2>
+        <div id="result-body" class="result-body"></div>
+        <div class="menu-btns">
+          <button class="neon-btn" data-action="restart">🔄 再来一局</button>
+          <button class="neon-btn ghost" data-action="quit">🚪 主菜单</button>
+        </div>
+      </div>
+
+      <!-- 调试面板 -->
+      <div id="debug-panel" class="debug-panel" style="display:none"></div>
+    </div>
+
+    <!-- 移动端虚拟按键 -->
+    <button id="touch-skill" class="touch-skill" data-action="skill">💥</button>
+  </div>
+
+  <!-- ====== 脚本加载顺序：工具 → 配置 → 实体 → 核心 → 系统 → 主类 → 入口 ====== -->
+  <script src="js/utils/Math2.js"></script>
+  <script src="js/utils/Pool.js"></script>
+  <script src="js/utils/Easing.js"></script>
+
+  <script src="js/config/gameConfig.js"></script>
+  <script src="js/config/planeData.js"></script>
+  <script src="js/config/enemyData.js"></script>
+  <script src="js/config/bossData.js"></script>
+  <script src="js/config/itemData.js"></script>
+  <script src="js/config/skillData.js"></script>
+  <script src="js/config/waveData.js"></script>
+
+  <script src="js/entities/Particle.js"></script>
+  <script src="js/entities/Bullet.js"></script>
+  <script src="js/entities/Item.js"></script>
+  <script src="js/entities/Enemy.js"></script>
+  <script src="js/entities/Boss.js"></script>
+  <script src="js/entities/Player.js"></script>
+  <script src="js/entities/Wingman.js"></script>
+
+  <script src="js/core/Collision.js"></script>
+  <script src="js/core/Renderer.js"></script>
+  <script src="js/core/Input.js"></script>
+  <script src="js/core/Audio.js"></script>
+
+  <script src="js/systems/UISystem.js"></script>
+  <script src="js/systems/SaveSystem.js"></script>
+  <script src="js/systems/SkillSystem.js"></script>
+  <script src="js/systems/SpawnSystem.js"></script>
+  <script src="js/systems/WaveSystem.js"></script>
+
+  <script src="js/core/Game.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
