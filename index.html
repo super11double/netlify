@@ -124,29 +124,13 @@
             pointer-events: none;
             z-index: 0;
         }
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: var(--scrollbar-thumb);
-            border-radius: 3px;
-        }
-        a {
-            color: var(--primary);
-            text-decoration: none;
-            transition: color var(--transition);
-        }
-        a:hover {
-            color: var(--primary-dark);
-        }
-        img {
-            display: block;
-            max-width: 100%;
-        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 3px; }
+        a { color: var(--primary); text-decoration: none; transition: color var(--transition); }
+        a:hover { color: var(--primary-dark); }
+        img { display: block; max-width: 100%; }
+
         .navbar {
             position: fixed;
             top: 0;
@@ -209,10 +193,7 @@
             letter-spacing: 0.02em;
             position: relative;
         }
-        .navbar-links a:hover {
-            color: var(--accent-gold-dark);
-            background: var(--badge-bg);
-        }
+        .navbar-links a:hover { color: var(--accent-gold-dark); background: var(--badge-bg); }
         .navbar-links a::after {
             content: "";
             position: absolute;
@@ -225,11 +206,7 @@
             opacity: 0;
             transition: all var(--transition);
         }
-        .navbar-links a:hover::after {
-            opacity: 1;
-            left: 14%;
-            right: 14%;
-        }
+        .navbar-links a:hover::after { opacity: 1; left: 14%; right: 14%; }
         .navbar-actions {
             display: flex;
             align-items: center;
@@ -260,9 +237,7 @@
             box-shadow: 0 4px 16px rgba(212, 175, 55, 0.2);
             transform: translateY(-2px);
         }
-        .icon-btn:active {
-            transform: scale(0.95);
-        }
+        .icon-btn:active { transform: scale(0.95); }
         .icon-btn svg {
             width: 18px;
             height: 18px;
@@ -273,13 +248,10 @@
             stroke-linejoin: round;
         }
         @media (min-width: 768px) {
-            .navbar-links {
-                display: flex;
-            }
-            .navbar-inner {
-                padding: 10px 24px;
-            }
+            .navbar-links { display: flex; }
+            .navbar-inner { padding: 10px 24px; }
         }
+
         .hero {
             padding-top: 80px;
             padding-bottom: 32px;
@@ -337,11 +309,7 @@
             animation-delay: 0.05s;
             backdrop-filter: blur(8px);
         }
-        .hero-badge::before {
-            content: "✦";
-            font-size: 0.7rem;
-            color: var(--accent-gold);
-        }
+        .hero-badge::before { content: "✦"; font-size: 0.7rem; color: var(--accent-gold); }
         .hero-name {
             font-size: clamp(2rem, 6vw, 3.2rem);
             font-weight: 800;
@@ -407,11 +375,7 @@
             color: var(--accent-gold-dark);
             box-shadow: 0 2px 12px rgba(212, 175, 55, 0.2);
         }
-        .hero-tag::before {
-            content: "◇";
-            font-size: 0.6rem;
-            color: var(--accent-gold);
-        }
+        .hero-tag::before { content: "◇"; font-size: 0.6rem; color: var(--accent-gold); }
         .hero-contact {
             display: flex;
             flex-wrap: wrap;
@@ -455,13 +419,8 @@
             border: 1px solid rgba(255,255,240,0.6);
             box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
         }
-        .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 28px rgba(212, 175, 55, 0.5);
-        }
-        .btn-primary:active {
-            transform: scale(0.98);
-        }
+        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(212, 175, 55, 0.5); }
+        .btn-primary:active { transform: scale(0.98); }
         .btn-outline {
             background: var(--surface);
             color: var(--text-secondary);
@@ -481,10 +440,7 @@
             position: relative;
             backdrop-filter: blur(8px);
         }
-        .btn-copy:hover {
-            border-color: var(--accent-gold);
-            color: var(--accent-gold-dark);
-        }
+        .btn-copy:hover { border-color: var(--accent-gold); color: var(--accent-gold-dark); }
         .btn-copy .copy-feedback {
             position: absolute;
             top: -36px;
@@ -500,13 +456,12 @@
             pointer-events: none;
             transition: opacity 0.25s;
         }
-        .btn-copy .copy-feedback.show {
-            opacity: 1;
-        }
+        .btn-copy .copy-feedback.show { opacity: 1; }
         @keyframes fadeInUp {
             from { opacity: 0; transform: translateY(16px); }
             to { opacity: 1; transform: translateY(0); }
         }
+
         .section {
             padding: 28px 16px;
             max-width: 1080px;
@@ -524,10 +479,7 @@
             transform: translateY(12px);
             transition: opacity 0.5s ease, transform 0.5s ease;
         }
-        .section-header.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
+        .section-header.visible { opacity: 1; transform: translateY(0); }
         .section-header-icon {
             width: 38px;
             height: 38px;
@@ -569,12 +521,8 @@
             box-shadow: 0 0 8px rgba(212, 175, 55, 0.4);
             animation: gentleGlow 3s ease-in-out infinite;
         }
-        .section-subtitle {
-            font-size: 0.82rem;
-            color: var(--text-muted);
-            margin-top: 4px;
-            letter-spacing: 0.03em;
-        }
+        .section-subtitle { font-size: 0.82rem; color: var(--text-muted); margin-top: 4px; letter-spacing: 0.03em; }
+
         .card,
         .highlight-card,
         .skill-card,
@@ -604,11 +552,8 @@
             transform: translateY(-3px);
             background-color: var(--surface-hover);
         }
-        .highlights-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 16px;
-        }
+
+        .highlights-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
         @media (min-width: 560px) { .highlights-grid { grid-template-columns: repeat(2, 1fr); } }
         @media (min-width: 900px) { .highlights-grid { grid-template-columns: repeat(3, 1fr); } }
         .highlight-card { opacity: 0; transform: translateY(16px); transition: opacity 0.5s ease, transform 0.5s ease, box-shadow var(--transition), border-color var(--transition); }
@@ -627,6 +572,7 @@
         .highlight-number span { font-size: 0.82rem; font-weight: 600; color: var(--text-muted); }
         .highlight-title { font-size: 0.92rem; font-weight: 700; color: var(--text); margin-bottom: 6px; }
         .highlight-desc { font-size: 0.8rem; color: var(--text-secondary); line-height: 1.55; }
+
         .tabs-container {
             background: var(--surface);
             border-radius: var(--radius-lg);
@@ -650,6 +596,7 @@
             -webkit-overflow-scrolling: touch;
             scrollbar-width: none;
         }
+        .tab-list::-webkit-scrollbar { display: none; }
         .tab-btn {
             padding: 10px 16px;
             font-size: 0.82rem;
@@ -669,10 +616,20 @@
             position: relative;
         }
         .tab-btn:hover { color: var(--accent-gold-dark); background: var(--surface-hover); }
-        .tab-btn[aria-selected="true"] { background: var(--tab-active-bg); color: var(--accent-gold-dark); border-bottom-color: var(--accent-gold); font-weight: 700; }
+        .tab-btn[aria-selected="true"] {
+            background: var(--tab-active-bg);
+            color: var(--accent-gold-dark);
+            border-bottom-color: var(--accent-gold);
+            font-weight: 700;
+        }
+        .tab-btn:focus-visible { outline: 2px solid var(--accent-gold); outline-offset: 2px; }
         .tab-panel { padding: 20px 16px; animation: tabFadeIn 0.25s ease-out; }
         .tab-panel[hidden] { display: none; }
-        @keyframes tabFadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes tabFadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         .project-card {
             background: var(--surface-hover);
             border-radius: var(--radius-md);
@@ -685,15 +642,52 @@
             -webkit-backdrop-filter: blur(12px);
         }
         .project-card:hover { box-shadow: var(--shadow-sm); border-color: rgba(212, 175, 55, 0.3); }
-        .project-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+        .project-card-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
         .project-name { font-size: 0.95rem; font-weight: 800; color: var(--text); }
-        .project-time { font-size: 0.72rem; color: var(--text-muted); background: var(--badge-bg); padding: 3px 12px; border-radius: var(--radius-pill); white-space: nowrap; font-weight: 600; border: 1px solid var(--border); }
+        .project-time {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            background: var(--badge-bg);
+            padding: 3px 12px;
+            border-radius: var(--radius-pill);
+            white-space: nowrap;
+            font-weight: 600;
+            border: 1px solid var(--border);
+        }
         .project-desc { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.65; margin-bottom: 10px; }
         .project-points { list-style: none; padding: 0; margin: 0 0 12px; }
-        .project-points li { font-size: 0.8rem; color: var(--text-secondary); padding-left: 18px; position: relative; margin-bottom: 5px; }
-        .project-points li::before { content: "✦"; position: absolute; left: 0; top: 2px; font-size: 0.55rem; color: var(--accent-gold); }
+        .project-points li {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            padding-left: 18px;
+            position: relative;
+            margin-bottom: 5px;
+        }
+        .project-points li::before {
+            content: "✦";
+            position: absolute;
+            left: 0;
+            top: 2px;
+            font-size: 0.55rem;
+            color: var(--accent-gold);
+        }
         .project-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
-        .project-tag { font-size: 0.7rem; padding: 3px 12px; border-radius: var(--radius-pill); background: var(--badge-bg); color: var(--badge-text); font-weight: 600; border: 1px solid var(--border); }
+        .project-tag {
+            font-size: 0.7rem;
+            padding: 3px 12px;
+            border-radius: var(--radius-pill);
+            background: var(--badge-bg);
+            color: var(--badge-text);
+            font-weight: 600;
+            border: 1px solid var(--border);
+        }
         .project-link {
             display: inline-flex;
             align-items: center;
@@ -710,6 +704,7 @@
             text-decoration: none;
             border: none;
             cursor: pointer;
+            margin-bottom: 12px;
         }
         .project-link:hover {
             transform: translateY(-2px);
@@ -726,18 +721,44 @@
             stroke-linejoin: round;
         }
         .game-embed {
-            margin-top: 16px;
+            margin-top: 8px;
             border-radius: var(--radius-sm);
             overflow: hidden;
             box-shadow: var(--shadow-sm);
             border: 1px solid var(--border);
-            background: #000;
+            background: #1a1a2e;
+            position: relative;
         }
         .game-embed iframe {
             width: 100%;
             height: 450px;
             border: none;
             display: block;
+            background: #1a1a2e;
+        }
+        .game-embed .game-hint {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            background: rgba(0,0,0,0.6);
+            color: #fff;
+            font-size: 0.7rem;
+            padding: 4px 10px;
+            border-radius: 10px;
+            pointer-events: none;
+        }
+        .game-error {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.7);
+            color: #ff6b6b;
+            padding: 16px 20px;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 0.85rem;
+            pointer-events: none;
         }
         .skills-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
         @media (min-width: 560px) { .skills-grid { grid-template-columns: repeat(2, 1fr); } }
@@ -745,27 +766,49 @@
         .skill-card { opacity: 0; transform: translateY(12px); transition: opacity 0.5s ease, transform 0.5s ease, box-shadow var(--transition), border-color var(--transition); }
         .skill-card.visible { opacity: 1; transform: translateY(0); }
         .skill-card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
-        .skill-icon { width: 32px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: linear-gradient(135deg, var(--primary-light), var(--primary-dark)); box-shadow: 0 2px 8px rgba(103, 140, 152, 0.2); }
+        .skill-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+            box-shadow: 0 2px 8px rgba(103, 140, 152, 0.2);
+        }
         .skill-icon svg { width: 16px; height: 16px; fill: none; stroke: #fffff0; stroke-width: 2; }
         .skill-name { font-size: 0.88rem; font-weight: 700; color: var(--text); }
         .skill-bar { height: 6px; background: var(--progress-track); border-radius: 3px; overflow: hidden; margin-top: 4px; }
-        .skill-bar-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--accent-gold-light), var(--accent-gold)); transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1); width: 0; box-shadow: 0 0 6px rgba(212, 175, 55, 0.4); }
+        .skill-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+            background: linear-gradient(90deg, var(--accent-gold-light), var(--accent-gold));
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 0;
+            box-shadow: 0 0 6px rgba(212, 175, 55, 0.4);
+        }
         .skill-bar-fill.animated { width: var(--skill-width); }
         .skill-level { font-size: 0.68rem; color: var(--text-muted); text-align: right; margin-top: 4px; font-weight: 600; }
         .edu-card { opacity: 0; transform: translateY(12px); transition: opacity 0.5s ease, transform 0.5s ease, box-shadow var(--transition); }
         .edu-card.visible { opacity: 1; transform: translateY(0); }
         .edu-school { font-size: 1rem; font-weight: 800; color: var(--text); }
         .edu-major { font-size: 0.85rem; color: var(--primary-dark); font-weight: 700; margin: 2px 0 4px; }
-        .edu-time { font-size: 0.72rem; color: var(--text-muted); background: var(--badge-bg); padding: 3px 12px; border-radius: var(--radius-pill); display: inline-block; margin-bottom: 12px; font-weight: 600; border: 1px solid var(--border); }
+        .edu-time {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            background: var(--badge-bg);
+            padding: 3px 12px;
+            border-radius: var(--radius-pill);
+            display: inline-block;
+            margin-bottom: 12px;
+            font-weight: 600;
+            border: 1px solid var(--border);
+        }
         .edu-detail { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.6; }
         .edu-detail li { list-style: none; padding-left: 18px; position: relative; margin-bottom: 6px; }
         .edu-detail li::before { content: "✦"; position: absolute; left: 0; top: 2px; font-size: 0.6rem; color: var(--accent-gold); }
-        .certs-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin-top: 16px;
-        }
+        .certs-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 16px; }
         @media (min-width: 560px) { .certs-grid { grid-template-columns: repeat(3, 1fr); } }
         @media (min-width: 900px) { .certs-grid { grid-template-columns: repeat(4, 1fr); } }
         .cert-item {
@@ -840,11 +883,21 @@
         }
         .back-to-top.show { opacity: 1; pointer-events: auto; transform: translateY(0); }
         .back-to-top:hover { transform: translateY(-4px); box-shadow: 0 10px 28px rgba(212, 175, 55, 0.55); }
-        .back-to-top svg { width: 20px; height: 20px; fill: none; stroke: #4a3c1f; stroke-width: 2.5; }
+        .back-to-top:active { transform: scale(0.92); }
+        .back-to-top svg {
+            width: 20px;
+            height: 20px;
+            fill: none;
+            stroke: #4a3c1f;
+            stroke-width: 2.5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
         @keyframes gentleGlow {
             0%, 100% { filter: drop-shadow(0 0 2px rgba(212, 175, 55, 0.4)); }
             50% { filter: drop-shadow(0 0 6px rgba(212, 175, 55, 0.7)); }
         }
+
         @media print {
             body { background: #fffff0 !important; color: #5c4d42 !important; font-size: 11pt; }
             body::before, body::after { display: none !important; }
@@ -852,9 +905,18 @@
             .hero { padding-top: 20px; min-height: auto; background: #fffff0 !important; }
             .hero-name { color: #5c4d42 !important; text-shadow: none; }
             .section { padding: 10px 0; }
-            .card, .highlight-card, .skill-card, .edu-card, .project-card, .tabs-container { box-shadow: none !important; border: 1px solid #ddd !important; background: #fffff0 !important; opacity: 1 !important; transform: none !important; backdrop-filter: none; outline: none !important; }
+            .card, .highlight-card, .skill-card, .edu-card, .project-card, .tabs-container {
+                box-shadow: none !important;
+                border: 1px solid #ddd !important;
+                background: #fffff0 !important;
+                opacity: 1 !important;
+                transform: none !important;
+                backdrop-filter: none;
+                outline: none !important;
+            }
             .tab-list { display: none !important; }
             .tab-panel { display: block !important; padding: 8px 0 !important; animation: none !important; }
+            .tab-panel[hidden] { display: block !important; }
             .certs-grid { grid-template-columns: repeat(3, 1fr) !important; gap: 6px !important; }
             .cert-item img { height: 120px !important; }
             .footer { color: #a09488 !important; font-size: 8pt; }
@@ -862,6 +924,7 @@
             .project-link, .game-embed { display: none !important; }
             @page { margin: 1.5cm; }
         }
+
         @media (min-width: 768px) {
             .section { padding: 36px 24px; }
             .section-title { font-size: 1.35rem; }
@@ -935,12 +998,12 @@
                 { number: "高中", suffix: "成绩稳定", title: "扎实数理基础", desc: "高考录取广东工业大学，具备良好的逻辑分析与自主学习能力。" }
             ],
             projects: [
-                { id: "proj1", name: "基于 Obsidian 的个人认知与知识体系构建", time: "持续进行中", desc: "利用 Obsidian 双链、标签、图谱等功能，搭建跨领域知识管理网络，提升知识调用与联想效率。", points: ["围绕智能建造、哲学、逻辑学等主题开展自主阅读与笔记整理，通过双向链接构建认知网络", "运用\"刨根问底\"式追问方法，对日常现象进行多层级归因分析，输出结构化思考笔记", "定期复盘笔记分类与标签体系，优化检索路径与知识复用流程", "在安静环境中进行深度工作训练，逐步提升单次专注时长与任务完成质量"], tags: ["Obsidian", "知识管理", "双链笔记", "Markdown", "深度思考"], link: null },
-                { id: "proj2", name: "个人健身与自律管理实践", time: "2024 - 至今", desc: "制定并执行系统力量训练计划，建立\"目标设定—计划拆解—执行复盘\"的自我管理流程。", points: ["保持每周规律训练，累计坚持健身两年以上，体能水平和体型得到明显改善", "记录训练日志与身体指标，持续优化训练动作、强度与恢复策略", "主动学习运动营养与恢复知识，结合自身情况调整饮食与作息", "为身边同学提供健身入门建议，帮助建立规律运动习惯"], tags: ["力量训练", "自律管理", "复盘优化", "运动营养"], link: null },
-                { id: "proj3", name: "GitHub 账号建设与自主学习探索", time: "持续进行中", desc: "创建并维护 GitHub 账号（super11double），用于记录学习过程、管理练习代码与笔记文档。", points: ["利用开源平台了解版本控制、代码协作与开源社区基本流程", "使用 Markdown 编写结构化学习文档，为后续智能建造专业课程学习积累素材", "持续探索编程与智能建造相关工具链", "初步建立技术学习习惯与开源协作意识"], tags: ["GitHub", "版本控制", "Markdown", "开源学习"], link: null },
-                { id: "proj4", name: "坦克大作战", time: "个人作品", desc: "使用原生 JavaScript 和 Canvas 开发的经典坦克对战游戏，玩家操控坦克在战场上移动、射击，击败敌方坦克。", points: ["实现玩家坦克移动与射击，支持键盘控制", "敌方坦克 AI 自动寻路与攻击，具备简单智能", "包含砖墙、钢墙等可破坏地形，碰撞检测完整", "具备音效、得分系统和游戏结束判定"], tags: ["JavaScript", "Canvas", "游戏开发", "AI"], link: "index (2).html", embed: true },
-                { id: "proj5", name: "小飞机游戏", time: "个人作品", desc: "使用原生 JavaScript 和 Canvas 开发的经典飞机射击游戏，玩家操控战机在星空中躲避敌机、击落敌机。", points: ["实现战机移动与射击，支持键盘或鼠标控制", "敌机自动生成与移动，具备简单飞行轨迹", "包含碰撞检测、得分系统和生命值", "具备粒子特效和简单音效"], tags: ["JavaScript", "Canvas", "游戏开发", "射击"], link: "index (3).html", embed: true },
-                { id: "proj6", name: "贪吃蛇游戏", time: "个人作品", desc: "使用原生 JavaScript 和 Canvas 开发的经典贪吃蛇游戏，玩家控制蛇在网格中移动，吃到食物变长，避免撞墙或撞到自己。", points: ["实现蛇的移动、转向与吃食物增长", "随机生成食物，得分越高蛇越长", "包含碰撞检测（墙壁和自身）与游戏结束判定", "支持键盘方向键控制，可调节游戏速度"], tags: ["JavaScript", "Canvas", "游戏开发", "经典"], link: "index (4).html", embed: true }
+                { id: "proj1", name: "基于 Obsidian 的个人认知与知识体系构建", time: "持续进行中", desc: "利用 Obsidian 双链、标签、图谱等功能，搭建跨领域知识管理网络，提升知识调用与联想效率。", points: ["围绕智能建造、哲学、逻辑学等主题开展自主阅读与笔记整理，通过双向链接构建认知网络", "运用\"刨根问底\"式追问方法，对日常现象进行多层级归因分析，输出结构化思考笔记", "定期复盘笔记分类与标签体系，优化检索路径与知识复用流程", "在安静环境中进行深度工作训练，逐步提升单次专注时长与任务完成质量"], tags: ["Obsidian", "知识管理", "双链笔记", "Markdown", "深度思考"], link: null, embed: false },
+                { id: "proj2", name: "个人健身与自律管理实践", time: "2024 - 至今", desc: "制定并执行系统力量训练计划，建立\"目标设定—计划拆解—执行复盘\"的自我管理流程。", points: ["保持每周规律训练，累计坚持健身两年以上，体能水平和体型得到明显改善", "记录训练日志与身体指标，持续优化训练动作、强度与恢复策略", "主动学习运动营养与恢复知识，结合自身情况调整饮食与作息", "为身边同学提供健身入门建议，帮助建立规律运动习惯"], tags: ["力量训练", "自律管理", "复盘优化", "运动营养"], link: null, embed: false },
+                { id: "proj3", name: "GitHub 账号建设与自主学习探索", time: "持续进行中", desc: "创建并维护 GitHub 账号（super11double），用于记录学习过程、管理练习代码与笔记文档。", points: ["利用开源平台了解版本控制、代码协作与开源社区基本流程", "使用 Markdown 编写结构化学习文档，为后续智能建造专业课程学习积累素材", "持续探索编程与智能建造相关工具链", "初步建立技术学习习惯与开源协作意识"], tags: ["GitHub", "版本控制", "Markdown", "开源学习"], link: null, embed: false },
+                { id: "proj4", name: "坦克大作战", time: "个人作品", desc: "使用原生 JavaScript 和 Canvas 开发的经典坦克对战游戏，玩家操控坦克在战场上移动、射击，击败敌方坦克。", points: ["实现玩家坦克移动与射击，支持键盘方向键和空格键控制", "敌方坦克 AI 自动寻路与攻击，具备简单智能", "包含砖墙、钢墙等可破坏地形，碰撞检测完整", "具备音效、得分系统和游戏结束判定"], tags: ["JavaScript", "Canvas", "游戏开发", "AI"], link: 'index (2).html', embed: true },
+                { id: "proj5", name: "小飞机游戏", time: "个人作品", desc: "使用原生 JavaScript 和 Canvas 开发的经典飞机射击游戏，玩家操控战机在星空中躲避敌机、击落敌机。", points: ["实现战机移动与射击，支持键盘方向键和空格键控制", "敌机自动生成与移动，具备简单飞行轨迹", "包含碰撞检测、得分系统和生命值", "具备粒子特效和简单音效"], tags: ["JavaScript", "Canvas", "游戏开发", "射击"], link: 'index (3).html', embed: true },
+                { id: "proj6", name: "贪吃蛇游戏", time: "个人作品", desc: "使用原生 JavaScript 和 Canvas 开发的经典贪吃蛇游戏，玩家控制蛇在网格中移动，吃到食物变长，避免撞墙或撞到自己。", points: ["实现蛇的移动、转向与吃食物增长", "随机生成食物，得分越高蛇越长", "包含碰撞检测（墙壁和自身）与游戏结束判定", "支持键盘方向键控制，可调节游戏速度"], tags: ["JavaScript", "Canvas", "游戏开发", "经典"], link: 'index (4).html', embed: true }
             ],
             skills: [
                 { name: "知识管理与认知体系", level: 72, label: "熟练", icon: "book", color: "#678c98" },
@@ -1063,35 +1126,80 @@
             const shortNames = ['Obsidian 知识体系', '健身自律实践', 'GitHub 学习', '坦克大作战', '小飞机游戏', '贪吃蛇游戏'];
             resume.projects.forEach((proj, index) => {
                 const tabBtn = el('button', { class: 'tab-btn', role: 'tab', 'aria-selected': index === 0 ? 'true' : 'false', tabindex: index === 0 ? '0' : '-1' });
-                tabBtn.textContent = shortNames[index] || proj.name; tabBtn.addEventListener('click', () => activateTab(index)); tabBtn.addEventListener('keydown', (e) => handleTabKeydown(e, index));
+                tabBtn.textContent = shortNames[index] || proj.name;
+                tabBtn.addEventListener('click', () => activateTab(index));
+                tabBtn.addEventListener('keydown', (e) => handleTabKeydown(e, index));
                 tabList.appendChild(tabBtn);
+
                 const panel = el('div', { class: 'tab-panel', role: 'tabpanel', hidden: index !== 0 ? '' : null });
                 const card = el('div', { class: 'project-card' });
-                const cardHeader = el('div', { class: 'project-card-header' }); cardHeader.appendChild(el('div', { class: 'project-name', text: proj.name })); cardHeader.appendChild(el('span', { class: 'project-time', text: proj.time }));
-                card.appendChild(cardHeader); card.appendChild(el('p', { class: 'project-desc', text: proj.desc }));
-                const ul = el('ul', { class: 'project-points' }); proj.points.forEach(p => ul.appendChild(el('li', { text: p }))); card.appendChild(ul);
-                const tags = el('div', { class: 'project-tags' }); proj.tags.forEach(t => tags.appendChild(el('span', { class: 'project-tag', text: t }))); card.appendChild(tags);
+                const cardHeader = el('div', { class: 'project-card-header' });
+                cardHeader.appendChild(el('div', { class: 'project-name', text: proj.name }));
+                cardHeader.appendChild(el('span', { class: 'project-time', text: proj.time }));
+                card.appendChild(cardHeader);
+                card.appendChild(el('p', { class: 'project-desc', text: proj.desc }));
+                const ul = el('ul', { class: 'project-points' });
+                proj.points.forEach(p => ul.appendChild(el('li', { text: p })));
+                card.appendChild(ul);
+                const tags = el('div', { class: 'project-tags' });
+                proj.tags.forEach(t => tags.appendChild(el('span', { class: 'project-tag', text: t })));
+                card.appendChild(tags);
+
                 if (proj.link) {
                     const link = el('a', { class: 'project-link', href: proj.link, target: '_blank', rel: 'noopener noreferrer' });
-                    link.appendChild(svgIcon('sparkle')); link.appendChild(document.createTextNode('在新窗口打开游戏')); card.appendChild(link);
+                    link.appendChild(svgIcon('sparkle'));
+                    link.appendChild(document.createTextNode('在新窗口打开游戏'));
+                    card.appendChild(link);
                 }
+
                 if (proj.embed) {
                     const gameEmbed = el('div', { class: 'game-embed' });
-                    const iframe = el('iframe', { src: proj.link, title: proj.name, loading: 'lazy' });
+                    const iframe = el('iframe', {
+                        src: proj.link,
+                        title: proj.name,
+                        allowfullscreen: '',
+                        loading: 'eager',
+                        tabindex: '0'
+                    });
                     gameEmbed.appendChild(iframe);
+                    const hint = el('div', { class: 'game-hint', text: '点击游戏画面即可操作' });
+                    gameEmbed.appendChild(hint);
                     card.appendChild(gameEmbed);
                 }
-                panel.appendChild(card); panels.push(panel);
+
+                panel.appendChild(card);
+                panels.push(panel);
             });
-            container.appendChild(tabList); panels.forEach(p => container.appendChild(p)); section.appendChild(container);
+
+            container.appendChild(tabList);
+            panels.forEach(p => container.appendChild(p));
+            section.appendChild(container);
+
             const tabBtns = tabList.querySelectorAll('.tab-btn');
             function activateTab(index) {
-                tabBtns.forEach((btn, i) => { btn.setAttribute('aria-selected', i === index ? 'true' : 'false'); btn.tabIndex = i === index ? 0 : -1; });
-                panels.forEach((panel, i) => { if (i === index) { panel.removeAttribute('hidden'); panel.style.animation = 'tabFadeIn 0.25s ease-out'; } else { panel.setAttribute('hidden', ''); } });
+                tabBtns.forEach((btn, i) => {
+                    btn.setAttribute('aria-selected', i === index ? 'true' : 'false');
+                    btn.tabIndex = i === index ? 0 : -1;
+                });
+                panels.forEach((panel, i) => {
+                    if (i === index) {
+                        panel.removeAttribute('hidden');
+                        panel.style.animation = 'none';
+                        void panel.offsetWidth;
+                        panel.style.animation = 'tabFadeIn 0.25s ease-out';
+                    } else {
+                        panel.setAttribute('hidden', '');
+                    }
+                });
             }
             function handleTabKeydown(e, index) {
-                const count = tabBtns.length; let newIndex = index;
-                if (e.key === 'ArrowRight') newIndex = (index + 1) % count; else if (e.key === 'ArrowLeft') newIndex = (index - 1 + count) % count; else if (e.key === 'Home') newIndex = 0; else if (e.key === 'End') newIndex = count - 1; else return;
+                const count = tabBtns.length;
+                let newIndex = index;
+                if (e.key === 'ArrowRight') { e.preventDefault(); newIndex = (index + 1) % count; }
+                else if (e.key === 'ArrowLeft') { e.preventDefault(); newIndex = (index - 1 + count) % count; }
+                else if (e.key === 'Home') { e.preventDefault(); newIndex = 0; }
+                else if (e.key === 'End') { e.preventDefault(); newIndex = count - 1; }
+                else return;
                 activateTab(newIndex);
             }
         }
@@ -1106,10 +1214,18 @@
             resume.skills.forEach(skill => {
                 const card = el('div', { class: 'skill-card card' });
                 const cardHeader = el('div', { class: 'skill-card-header' });
-                const iconWrap2 = el('div', { class: 'skill-icon', style: 'background:linear-gradient(135deg,' + skill.color + ',' + skill.color + 'CC);' }); iconWrap2.appendChild(svgIcon(skill.icon || 'star'));
-                cardHeader.appendChild(iconWrap2); cardHeader.appendChild(el('div', { class: 'skill-name', text: skill.name })); card.appendChild(cardHeader);
-                const barWrap = el('div'); const bar = el('div', { class: 'skill-bar', 'aria-hidden': 'true' }); const fill = el('div', { class: 'skill-bar-fill', style: '--skill-width:' + skill.level + '%;' });
-                bar.appendChild(fill); barWrap.appendChild(bar); barWrap.appendChild(el('div', { class: 'skill-level', text: skill.label + ' · ' + skill.level + '%' })); card.appendChild(barWrap);
+                const iconWrap2 = el('div', { class: 'skill-icon', style: 'background:linear-gradient(135deg,' + skill.color + ',' + skill.color + 'CC);' });
+                iconWrap2.appendChild(svgIcon(skill.icon || 'star'));
+                cardHeader.appendChild(iconWrap2);
+                cardHeader.appendChild(el('div', { class: 'skill-name', text: skill.name }));
+                card.appendChild(cardHeader);
+                const barWrap = el('div');
+                const bar = el('div', { class: 'skill-bar', 'aria-hidden': 'true' });
+                const fill = el('div', { class: 'skill-bar-fill', style: '--skill-width:' + skill.level + '%;' });
+                bar.appendChild(fill);
+                barWrap.appendChild(bar);
+                barWrap.appendChild(el('div', { class: 'skill-level', text: skill.label + ' · ' + skill.level + '%' }));
+                card.appendChild(barWrap);
                 grid.appendChild(card);
             });
             section.appendChild(grid);
@@ -1122,17 +1238,25 @@
             const titleWrap = el('div'); titleWrap.appendChild(el('h2', { class: 'section-title', text: '教育与证书' })); titleWrap.appendChild(el('p', { class: 'section-subtitle', text: '成长之路 · 证书见证' }));
             header.appendChild(iconWrap); header.appendChild(titleWrap); section.appendChild(header);
             const eduCard = el('div', { class: 'edu-card card' });
-            eduCard.appendChild(el('div', { class: 'edu-school', text: resume.education.school })); eduCard.appendChild(el('div', { class: 'edu-major', text: resume.education.major + ' · ' + resume.education.degree }));
-            eduCard.appendChild(el('span', { class: 'edu-time', text: resume.education.time })); const details = el('div', { class: 'edu-detail' }); const ul = el('ul');
-            resume.education.details.forEach(d => ul.appendChild(el('li', { text: d }))); details.appendChild(ul); eduCard.appendChild(details); section.appendChild(eduCard);
+            eduCard.appendChild(el('div', { class: 'edu-school', text: resume.education.school }));
+            eduCard.appendChild(el('div', { class: 'edu-major', text: resume.education.major + ' · ' + resume.education.degree }));
+            eduCard.appendChild(el('span', { class: 'edu-time', text: resume.education.time }));
+            const details = el('div', { class: 'edu-detail' });
+            const ul = el('ul');
+            resume.education.details.forEach(d => ul.appendChild(el('li', { text: d })));
+            details.appendChild(ul);
+            eduCard.appendChild(details);
+            section.appendChild(eduCard);
 
             if (resume.certificates && resume.certificates.length > 0) {
-                const certTitle = el('h3', { class: 'section-title', text: 'AI 相关证书', style: 'margin-top:24px; margin-bottom:12px;' }); section.appendChild(certTitle);
+                const certTitle = el('h3', { class: 'section-title', text: 'AI 相关证书', style: 'margin-top:24px; margin-bottom:12px;' });
+                section.appendChild(certTitle);
                 const certsGrid = el('div', { class: 'certs-grid' });
                 resume.certificates.forEach((fileName, index) => {
-                    const link = el('a', { class: 'cert-item', href: fileName, target: '_blank', rel: 'noopener noreferrer', 'aria-label': '证书 ' + (index + 1) });
+                    const encodedName = encodeURIComponent(fileName);
+                    const link = el('a', { class: 'cert-item', href: encodedName, target: '_blank', rel: 'noopener noreferrer', 'aria-label': '证书 ' + (index + 1) });
                     const img = el('img', {
-                        src: fileName,
+                        src: encodedName,
                         alt: '证书 ' + (index + 1),
                         loading: 'lazy',
                         decoding: 'async',
@@ -1142,7 +1266,9 @@
                         }
                     });
                     const caption = el('div', { class: 'cert-caption', text: '证书 ' + (index + 1) });
-                    link.appendChild(img); link.appendChild(caption); certsGrid.appendChild(link);
+                    link.appendChild(img);
+                    link.appendChild(caption);
+                    certsGrid.appendChild(link);
                 });
                 section.appendChild(certsGrid);
             } else {
@@ -1152,29 +1278,78 @@
 
         function renderFooter() {
             const footer = document.getElementById('footer');
-            const now = new Date(); const year = now.getFullYear(); const month = String(now.getMonth() + 1).padStart(2, '0'); const day = String(now.getDate()).padStart(2, '0');
-            footer.appendChild(el('span', { text: '© ' + year + ' ' + resume.name })); footer.appendChild(el('span', { text: '·' })); footer.appendChild(el('span', { text: '更新于 ' + year + '.' + month + '.' + day })); footer.appendChild(el('span', { text: '·' })); footer.appendChild(el('span', { text: '用 ❤ 与 Obsidian 驱动' }));
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            footer.appendChild(el('span', { text: '© ' + year + ' ' + resume.name }));
+            footer.appendChild(el('span', { text: '·' }));
+            footer.appendChild(el('span', { text: '更新于 ' + year + '.' + month + '.' + day }));
+            footer.appendChild(el('span', { text: '·' }));
+            footer.appendChild(el('span', { text: '用 ❤ 与 Obsidian 驱动' }));
         }
 
         function initScrollAnimations() {
+            const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            if (prefersReduced) {
+                document.querySelectorAll('.section-header, .highlight-card, .skill-card, .edu-card, .tabs-container').forEach(el => {
+                    el.classList.add('visible');
+                    if (el.classList.contains('skill-card')) {
+                        const fill = el.querySelector('.skill-bar-fill');
+                        if (fill) fill.classList.add('animated');
+                    }
+                });
+                return;
+            }
             const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => { if (entry.isIntersecting) { entry.target.classList.add('visible'); if (entry.target.classList.contains('skill-card')) { const fill = entry.target.querySelector('.skill-bar-fill'); if (fill) setTimeout(() => fill.classList.add('animated'), 150); } observer.unobserve(entry.target); } });
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        if (entry.target.classList.contains('skill-card')) {
+                            const fill = entry.target.querySelector('.skill-bar-fill');
+                            if (fill) setTimeout(() => fill.classList.add('animated'), 150);
+                        }
+                        observer.unobserve(entry.target);
+                    }
+                });
             }, { threshold: 0.15, rootMargin: '0px 0px -30px 0px' });
             document.querySelectorAll('.section-header, .highlight-card, .skill-card, .edu-card, .tabs-container').forEach(el => observer.observe(el));
         }
 
         function initBackToTop() {
-            const btn = document.getElementById('backToTop'); const hero = document.getElementById('hero');
-            const observer = new IntersectionObserver((entries) => { entries.forEach(entry => { if (entry.isIntersecting) btn.classList.remove('show'); else btn.classList.add('show'); }); }, { threshold: 0.1 });
-            observer.observe(hero); btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+            const btn = document.getElementById('backToTop');
+            const hero = document.getElementById('hero');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) btn.classList.remove('show');
+                    else btn.classList.add('show');
+                });
+            }, { threshold: 0.1 });
+            observer.observe(hero);
+            btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
         }
 
         function initNavLinks() {
-            document.querySelectorAll('.navbar-links a').forEach(anchor => { anchor.addEventListener('click', (e) => { e.preventDefault(); const target = document.querySelector(anchor.getAttribute('href')); if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' }); }); });
+            document.querySelectorAll('.navbar-links a').forEach(anchor => {
+                anchor.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const target = document.querySelector(anchor.getAttribute('href'));
+                    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                });
+            });
         }
 
         function init() {
-            setTheme(getPreferredTheme()); renderHero(); renderHighlights(); renderProjects(); renderSkills(); renderEducation(); renderFooter(); initScrollAnimations(); initBackToTop(); initNavLinks();
+            setTheme(getPreferredTheme());
+            renderHero();
+            renderHighlights();
+            renderProjects();
+            renderSkills();
+            renderEducation();
+            renderFooter();
+            initScrollAnimations();
+            initBackToTop();
+            initNavLinks();
         }
         document.addEventListener('DOMContentLoaded', init);
     </script>
