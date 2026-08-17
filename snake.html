@@ -665,14 +665,9 @@
         });
 
         // ==================== 虚拟按钮事件（移动端） ====================
-        // 使用事件委托，监听所有 data-direction 按钮
-        touchControls.addEventListener('click', function (event) {
-            const btn = event.target.closest('[data-direction]');
-            if (!btn) return;
-
-            const dir = btn.getAttribute('data-direction');
+        // 方向处理逻辑（键盘与触摸共用）
+        function handleDirection(dir) {
             if (isGameOver) return;
-
             switch (dir) {
                 case 'UP':
                     if (direction !== 'DOWN') nextDirection = 'UP';
@@ -689,12 +684,32 @@
                 default:
                     break;
             }
-        });
+        }
 
-        // 阻止虚拟按钮上的触摸事件导致页面缩放或滚动
-        touchControls.addEventListener('touchstart', function (e) {
-            e.preventDefault();
+        // 移动端用 touchstart 立即响应（无 300ms 延迟），并阻止默认行为防止页面缩放/滚动
+        let lastTouchTime = 0;
+        touchControls.addEventListener('touchstart', function (event) {
+            const btn = event.target.closest('[data-direction]');
+            if (!btn) return;
+
+            // 阻止默认行为，防止后续 click 触发导致的重复响应、以及页面缩放/滚动
+            event.preventDefault();
+
+            const dir = btn.getAttribute('data-direction');
+            handleDirection(dir);
+            lastTouchTime = Date.now();
         }, { passive: false });
+
+        // 桌面端小屏（窗口宽度 <=600px）显示虚拟按钮时，用 click 响应鼠标点击
+        touchControls.addEventListener('click', function (event) {
+            // 触摸产生的合成 click 已被 touchstart 处理过，跳过避免重复
+            if (Date.now() - lastTouchTime < 500) return;
+
+            const btn = event.target.closest('[data-direction]');
+            if (!btn) return;
+            const dir = btn.getAttribute('data-direction');
+            handleDirection(dir);
+        });
 
         // ==================== 按钮事件监听 ====================
         restartBtn.addEventListener('click', startGame);
