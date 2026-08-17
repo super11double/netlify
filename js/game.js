@@ -412,40 +412,60 @@ const Input = {
       };
       window.addEventListener('mouseup', endMouseFire);
       // 触屏:画面任意位置按住拖动 → 炮管瞄准 + 开火
-      let aimTouchId = null;
-      canvas.addEventListener('touchstart', e => {
-        e.preventDefault();
-        for (const t of e.changedTouches){
-          const p = toCanvas(t.clientX, t.clientY);
-          // 如果没有摇杆激活的左手触控,优先用第二触控瞄准,否则第一触控瞄准
-          aimTouchId = t.identifier;
+      // —— [v62优化] 瞄准 canvas 触控同样改为 Pointer Events + setPointerCapture,
+      //    手指滑出画布时 aimTouchId 不会丢失/跟手性大幅提升; 同时兼容摇杆不被误判瞄准
+      let aimPointerId = null;
+      const notJoystick = (e) => {
+        const js = document.getElementById('joystick');
+        if (!js) return true;
+        return !js.contains(e.target);
+      };
+      canvas.addEventListener('pointerdown', e => {
+        if (e.pointerType === 'mouse'){
+          // 鼠标左键:等价于旧 mousedown — 瞄谁 + 开 fire 键
+          if (e.button !== 0) return;
+          e.preventDefault();
+          try { canvas.setPointerCapture(e.pointerId); } catch(_){}
+          aimPointerId = e.pointerId;
+          const p = toCanvas(e.clientX, e.clientY);
           this.aimActive = true;
           this.aimX = p.x; this.aimY = p.y;
           this.setTouch(' ', true);
+          return;
         }
-      }, { passive:false });
-      canvas.addEventListener('touchmove', e => {
+        // 触控:只有不在摇杆区域发起的 pointer 才算"瞄准/开火"
+        if (!notJoystick(e)) return;
         e.preventDefault();
-        for (const t of e.changedTouches){
-          if (t.identifier === aimTouchId){
-            const p = toCanvas(t.clientX, t.clientY);
-            this.aimActive = true;
-            this.aimX = p.x; this.aimY = p.y;
-          }
-        }
+        try { canvas.setPointerCapture(e.pointerId); } catch(_){}
+        aimPointerId = e.pointerId;
+        const p = toCanvas(e.clientX, e.clientY);
+        this.aimActive = true;
+        this.aimX = p.x; this.aimY = p.y;
+        this.setTouch(' ', true);
       }, { passive:false });
-      const endAim = e => {
-        e.preventDefault();
-        for (const t of e.changedTouches){
-          if (t.identifier === aimTouchId){
-            aimTouchId = null;
-            this.aimActive = false;
-            this.setTouch(' ', false);
-          }
-        }
+      canvas.addEventListener('pointermove', e => {
+        if (aimPointerId !== e.pointerId) return;
+        if (e.cancelable) e.preventDefault();
+        const p = toCanvas(e.clientX, e.clientY);
+        this.aimActive = true;
+        this.aimX = p.x; this.aimY = p.y;
+      }, { passive:false });
+      const endAimPtr = (e) => {
+        if (aimPointerId !== e.pointerId) return;
+        if (e.cancelable) { try { e.preventDefault(); } catch(_){} }
+        try { canvas.releasePointerCapture(e.pointerId); } catch(_){}
+        aimPointerId = null;
+        this.aimActive = false;
+        this.setTouch(' ', false);
       };
-      canvas.addEventListener('touchend', endAim, {passive:false});
-      canvas.addEventListener('touchcancel', endAim, {passive:false});
+      canvas.addEventListener('pointerup', endAimPtr, {passive:false});
+      canvas.addEventListener('pointercancel', endAimPtr, {passive:false});
+      canvas.addEventListener('lostpointercapture', (e) => {
+        if (aimPointerId !== e.pointerId) return;
+        aimPointerId = null;
+        this.aimActive = false;
+        this.setTouch(' ', false);
+      }, {passive:false});
     }
     // 检测触屏设备并初始化虚拟控制器
     this.detectTouch();
@@ -489,6 +509,15 @@ const TouchControls = {
         const ov = document.getElementById('overlay');
         return ov && !ov.classList.contains('hidden') && ov.contains(el);
       };
+      // —— [v62优化] 游戏状态判断:overlay 打开 + 游戏状态非 playing 时,不拦截 document touchmove,
+      //    否则商店/选关的长列表永远无法滚动. 只有游戏真正在玩中才需要兜底拦截.
+      const shouldBlockGlobal = () => {
+        const ov = document.getElementById('overlay');
+        if (ov && !ov.classList.contains('hidden')) return false;
+        const g = Game.instance;
+        if (!g) return false;
+        return g.state === 'playing';
+      };
       const blockIfGame = (e) => {
         // overlay 打开时:不拦截,让菜单/商店内容能滚动;overlay 关闭时:全部拦截
         const ov = document.getElementById('overlay');
@@ -509,52 +538,88 @@ const TouchControls = {
         ga.addEventListener('touchmove', blockIfGame, {passive:false});
       }
       // 兜底:document 层再拦 touchmove(快速滑出边界时事件会冒上来)
-      document.addEventListener('touchmove', blockIfGame, {passive:false});
+      // —— [v62优化] 用 shouldBlockGlobal 精确判断游戏进行中才拦,避免阻塞菜单滚动
+      document.addEventListener('touchmove', e => {
+        if (!shouldBlockGlobal()) return;
+        if (e.target && inOverlay(e.target)) return;
+        if (e.cancelable) e.preventDefault();
+      }, {passive:false});
     }
     const joystick = document.getElementById('joystick');
-    // —— 摇杆:touchstart/move/end ——
+    // —— [v62优化] 改用 Pointer Events 统一模型 + setPointerCapture,
+    //    鼠标/触控/触控笔全部统一;捕获后手指/鼠标移出元素边界仍能稳定收到 move/up 事件,
+    //    解决旧 touch 模型下:快速拖动超出容器后丢事件 → 摇杆"不归位/失灵"
     if (joystick){
       const rect = ()=> joystick.getBoundingClientRect();
-      joystick.addEventListener('touchstart', e => {
+      const start = (e) => {
+        if (e.pointerType === 'mouse' && e.button !== 0) return;
         e.preventDefault();
-        const t = e.changedTouches[0];
-        this.joyId = t.identifier;
+        try { joystick.setPointerCapture(e.pointerId); } catch(_){}
+        this.joyId = 'p_'+e.pointerId;
         const r = rect();
         this.joyCenter = { x:r.left + r.width/2, y:r.top + r.height/2 };
         this.joyRadius = r.width / 2;
-        this.updateStick(t.clientX, t.clientY);
-      }, {passive:false});
-      joystick.addEventListener('touchmove', e => {
-        e.preventDefault();
-        for (const t of e.changedTouches){
-          if (t.identifier === this.joyId){
-            this.updateStick(t.clientX, t.clientY);
-          }
-        }
-      }, {passive:false});
-      const endHandler = e => {
-        e.preventDefault();
-        for (const t of e.changedTouches){
-          if (t.identifier === this.joyId){
-            this.joyId = null;
-            this.resetStick();
-          }
-        }
+        this.updateStick(e.clientX, e.clientY);
       };
-      joystick.addEventListener('touchend', endHandler, {passive:false});
-      joystick.addEventListener('touchcancel', endHandler, {passive:false});
+      const move = (e) => {
+        if ((''+this.joyId) !== 'p_'+e.pointerId) return;
+        // —— [v62优化] pointermove 不依赖事件冒泡+被动模式,直接 preventDefault 阻止页面手势
+        if (e.cancelable) e.preventDefault();
+        this.updateStick(e.clientX, e.clientY);
+      };
+      const end = (e) => {
+        if ((''+this.joyId) !== 'p_'+e.pointerId) return;
+        e.preventDefault();
+        try { joystick.releasePointerCapture(e.pointerId); } catch(_){}
+        this.joyId = null;
+        this.resetStick();
+      };
+      joystick.addEventListener('pointerdown', start, {passive:false});
+      joystick.addEventListener('pointermove', move, {passive:false});
+      joystick.addEventListener('pointerup', end, {passive:false});
+      joystick.addEventListener('pointercancel', end, {passive:false});
+      joystick.addEventListener('lostpointercapture', end, {passive:false});
     }
-    // —— 射击按钮:按住=持续射击 ——
-    const fireBtn = document.getElementById('touch-fire');
-    if (fireBtn){
-      fireBtn.addEventListener('touchstart', e => { e.preventDefault(); Input.setTouch(' ', true); }, {passive:false});
-      fireBtn.addEventListener('touchend',   e => { e.preventDefault(); Input.setTouch(' ', false); }, {passive:false});
-      fireBtn.addEventListener('touchcancel',e => { e.preventDefault(); Input.setTouch(' ', false); }, {passive:false});
-    }
-    // —— 道具按钮:单次触发 ——
+    // —— [v62优化] 射击/道具/神技/武器切换按钮:同样用 Pointer Events + setPointerCapture
+    //    解决触屏手指滑出按钮 → touchend 不触发 → 射击键一直"按住"导致跟手感错乱 & 激光蓄力卡住
+    const bindHoldBtn = (elId, keyCode) => {
+      const el = document.getElementById(elId);
+      if (!el) return;
+      let capturedId = null;
+      el.addEventListener('pointerdown', e => {
+        if (e.pointerType === 'mouse' && e.button !== 0) return;
+        e.preventDefault();
+        try { el.setPointerCapture(e.pointerId); } catch(_){}
+        capturedId = e.pointerId;
+        Input.setTouch(keyCode, true);
+      }, {passive:false});
+      const clearBtn = (e) => {
+        if (capturedId !== e.pointerId) return;
+        e.preventDefault();
+        try { el.releasePointerCapture(e.pointerId); } catch(_){}
+        capturedId = null;
+        Input.setTouch(keyCode, false);
+      };
+      el.addEventListener('pointermove', e => {
+        if (capturedId !== e.pointerId) return;
+        if (e.cancelable) e.preventDefault();
+        // 只要 capture 没丢,手指滑到哪都保持"按下",不中途误伤
+        Input.setTouch(keyCode, true);
+      }, {passive:false});
+      el.addEventListener('pointerup', clearBtn, {passive:false});
+      el.addEventListener('pointercancel', clearBtn, {passive:false});
+      el.addEventListener('lostpointercapture', (e) => {
+        if (capturedId !== e.pointerId) return;
+        capturedId = null;
+        Input.setTouch(keyCode, false);
+      }, {passive:false});
+    };
+    bindHoldBtn('touch-fire', ' ');
+    // —— 道具按钮:单次触发(用 pointerdown 一次性,不长按) ——
     const itemBtn = document.getElementById('touch-item');
     if (itemBtn){
-      itemBtn.addEventListener('touchstart', e => {
+      itemBtn.addEventListener('pointerdown', e => {
+        if (e.pointerType === 'mouse' && e.button !== 0) return;
         e.preventDefault();
         if (Game.instance) Game.instance.onKeyPress('q');
       }, {passive:false});
@@ -562,7 +627,8 @@ const TouchControls = {
     // —— 专属神技按钮:单次触发 ——
     const skillBtn = document.getElementById('touch-skill');
     if (skillBtn){
-      skillBtn.addEventListener('touchstart', e => {
+      skillBtn.addEventListener('pointerdown', e => {
+        if (e.pointerType === 'mouse' && e.button !== 0) return;
         e.preventDefault();
         if (Game.instance) Game.instance.onKeyPress('f');
       }, {passive:false});
@@ -570,8 +636,14 @@ const TouchControls = {
     // —— 武器切换:上一把/下一把 ——
     const wPrev = document.getElementById('touch-wprev');
     const wNext = document.getElementById('touch-wnext');
-    if (wPrev) wPrev.addEventListener('touchstart', e => { e.preventDefault(); this.switchWeapon(-1); }, {passive:false});
-    if (wNext) wNext.addEventListener('touchstart', e => { e.preventDefault(); this.switchWeapon(1); }, {passive:false});
+    if (wPrev) wPrev.addEventListener('pointerdown', e => {
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      e.preventDefault(); this.switchWeapon(-1);
+    }, {passive:false});
+    if (wNext) wNext.addEventListener('pointerdown', e => {
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      e.preventDefault(); this.switchWeapon(1);
+    }, {passive:false});
   },
   // 摇杆位置 → 方向键模拟(旧) + 连续角度/强度(新,用于坦克自由驾驶)
   updateStick(tx, ty){
@@ -587,7 +659,19 @@ const TouchControls = {
     if (this.stickEl){
       const clampX = Math.max(-maxDist, Math.min(maxDist, dx));
       const clampY = Math.max(-maxDist, Math.min(maxDist, dy));
-      this.stickEl.style.transform = `translate(${clampX}px, ${clampY}px)`;
+      // —— [v62优化] 摇杆视觉用 requestAnimationFrame 合帧,避免 pointermove 高频触发导致抖动
+      if (this._rafStickPending) {
+        this._stickPendingX = clampX; this._stickPendingY = clampY;
+        return;
+      }
+      this._rafStickPending = true;
+      this._stickPendingX = clampX; this._stickPendingY = clampY;
+      requestAnimationFrame(() => {
+        this._rafStickPending = false;
+        if (this.stickEl){
+          this.stickEl.style.transform = `translate(${this._stickPendingX}px, ${this._stickPendingY}px)`;
+        }
+      });
     }
     // 死区内不触发移动
     if (intensity < 0.3){
@@ -736,17 +820,28 @@ class Bullet {
 
     // —— 子弹速度标准化: 旧 vx/vy 是「像素/帧@60Hz」, 按 dt/16.67 缩放为任意帧率一致速度 ——
     const bs = dt / 16.67;
-    const moveDist = Math.abs(this.vx*bs) + Math.abs(this.vy*bs);
+    // [v60修复] 速度/位移非法值防御: NaN/Infinity/超大量 → 置为0,防止 steps 爆炸或穿墙
+    if (!isFinite(this.vx)) this.vx = 0;
+    if (!isFinite(this.vy)) this.vy = 0;
+    const fvx = this.vx * bs, fvy = this.vy * bs;
+    if (!isFinite(fvx) || Math.abs(fvx) > TILE*10) this.vx = 0;
+    if (!isFinite(fvy) || Math.abs(fvy) > TILE*10) this.vy = 0;
+    const moveDist = Math.hypot(this.vx*bs, this.vy*bs);
     // 分步检测: 位移超过半格(16px)时拆成小步, 防止穿墙(追踪弹转向/高dt跳格)
-    const steps = Math.max(1, Math.ceil(moveDist / (TILE*0.4)));
+    const rawSteps = Math.ceil(moveDist / (TILE*0.4));
+    const steps = Math.max(1, Math.min(rawSteps, 30));  // [v60修复] 步数上限30兜底,极端情况防卡死
     const sdx = (this.vx * bs) / steps;
     const sdy = (this.vy * bs) / steps;
     let hitTerrain = false;
     for (let si=0; si<steps && !this.dead && !hitTerrain; si++){
+      // [v60修复] 单步增量也必须有限, 否则 grid[NaN][NaN] 崩溃
+      if (!isFinite(sdx) || !isFinite(sdy)){ this.dead = true; break; }
       this.x += sdx;
       this.y += sdy;
       // 出界
       if (this.x < 0 || this.x > W || this.y < 0 || this.y > H){ this.dead = true; return; }
+      // [v60修复] 坐标有限才查地形
+      if (!isFinite(this.x) || !isFinite(this.y)){ this.dead = true; return; }
       // 撞击地形
       const cx = Util.toCell(this.x), cy = Util.toCell(this.y);
       if (cx>=0 && cx<COLS && cy>=0 && cy<ROWS){
@@ -1363,13 +1458,21 @@ class Tank {
   // 尝试移动 dx,dy,带碰撞检测
   // 检查指定 (x,y) 左上角位置是否合法(不越界、不撞地形),不含坦克间碰撞
   _positionLegal(nx, ny, game){
+    // [v60修复] NaN/Infinity 污染防御:坐标非有限数直接返回false,阻止 grid[NaN][NaN] 类型崩溃
+    if (!isFinite(nx) || !isFinite(ny)) return false;
     if (nx < 0 || nx+this.w > W || ny < 0 || ny+this.h > H) return false;
     const c0 = Util.toCell(nx), c1 = Util.toCell(nx+this.w-1);
     const r0 = Util.toCell(ny), r1 = Util.toCell(ny+this.h-1);
+    // [v60修复] 格坐标也必须是有限整数,否则跳过
+    if (!isFinite(c0)||!isFinite(c1)||!isFinite(r0)||!isFinite(r1)) return false;
     for (let cy=r0; cy<=r1; cy++){
       for (let cx=c0; cx<=c1; cx++){
         if (cx<0||cx>=COLS||cy<0||cy>=ROWS) return false;
-        const t = game.grid[cy][cx].type;
+        const row = game.grid[cy];
+        if (!row) return false;
+        const cell = row[cx];
+        if (!cell) return false;
+        const t = cell.type;
         if (t===T.BRICK || t===T.STEEL || t===T.WATER || t===T.BASE) return false;
       }
     }
@@ -1377,14 +1480,22 @@ class Tank {
   }
 
   tryMove(dx, dy, game){
+    // [v60修复] 位移非法值防御:NaN/Infinity/超大量 → 归零,防止递归崩溃或穿墙
+    if (!isFinite(dx)) dx = 0;
+    if (!isFinite(dy)) dy = 0;
+    // 位移过大(>5格) → 截断,避免 steps 爆炸
+    const dist = Math.hypot(dx, dy);
+    const MAX_MOVE = TILE * 5;
+    if (dist > MAX_MOVE){ const k = MAX_MOVE/dist; dx *= k; dy *= k; }
     // —— 大位移安全网: 位移超过半格时分步移动, 防止跳过钢墙/水/基地 ——
     // (击退/冲撞等一帧推 70px+, tryMove 只检查终点角点, 会跳过中间的墙)
-    const dist = Math.hypot(dx, dy);
     if (dist > TILE * 0.5){
       const steps = Math.ceil(dist / (TILE * 0.5));
-      const sx = dx / steps, sy = dy / steps;
+      // [v60修复] 步数上限兜底(20步),极端情况防止死循环
+      const safeSteps = Math.min(steps, 20);
+      const sx = dx / safeSteps, sy = dy / safeSteps;
       let movedAny = false;
-      for (let i = 0; i < steps; i++){
+      for (let i = 0; i < safeSteps; i++){
         if (this.tryMove(sx, sy, game)) movedAny = true;
       }
       return movedAny;
@@ -2219,13 +2330,19 @@ class PlayerTank extends Tank {
     if (this.phaseInvisible) moveSpeedMul *= 1.30;
 
     // —— 平滑缓动: moveFwdSmooth / strafeSmooth —— 让起步/刹车不顿挫 ——
-    const k = Math.min(1, (dt/16.67) * 0.26);
+    // —— [v62优化] 移动端把响应速度加倍(k 乘 2):触控每帧 16ms → 起步/刹车迟滞 100ms 就很明显,
+    //    缓动要更激进. 区分触屏设备(isTouchDevice)动态设置 k 系数
+    const isTouchInput = Input.isTouchDevice || (Input.joyAngle !== null);
+    const kBase = isTouchInput ? 0.52 : 0.26;
+    const k = Math.min(1, (dt/16.67) * kBase);
     this.moveFwdSmooth    = this.moveFwdSmooth    ?? 0;
     this.strafeSmooth     = this.strafeSmooth     ?? 0;
     this.moveFwdSmooth += (moveForward - this.moveFwdSmooth) * k;
     this.strafeSmooth  += (strafe      - this.strafeSmooth)  * k;
-    if (moveForward === 0 && Math.abs(this.moveFwdSmooth) < 0.01) this.moveFwdSmooth = 0;
-    if (strafe === 0 && Math.abs(this.strafeSmooth) < 0.01) this.strafeSmooth = 0;
+    // —— [v62优化] 松开摇杆时归零阈值放大,避免 0.0x 残值"粘手"——
+    const ZERO_THRESH = isTouchInput ? 0.04 : 0.01;
+    if (moveForward === 0 && Math.abs(this.moveFwdSmooth) < ZERO_THRESH) this.moveFwdSmooth = 0;
+    if (strafe === 0 && Math.abs(this.strafeSmooth) < ZERO_THRESH) this.strafeSmooth = 0;
 
     const timeScale = dt / 1000;
 
@@ -2280,8 +2397,10 @@ class PlayerTank extends Tank {
 
     // —— 炮管瞄准(指哪打哪):永远沿鼠标/触屏指向 ——
     const turretScale = dt / 16.67;
+    // —— [v62优化] 移动端触屏瞄准 + 炮管 转更快,减少"手已经指过去但炮管还在慢吞吞转"的不跟手感
+    const turretTurnRate = (Input.isTouchDevice) ? 0.52 : 0.30;
     if (aimAng !== null){
-      this.turnTurretTowards(aimAng, 0.30 * turretScale);  // 炮管转更快 0.30rad/帧
+      this.turnTurretTowards(aimAng, turretTurnRate * turretScale);
     } else {
       // 无瞄准输入 → 炮管缓缓对齐车身
       this.turnTurretTowards(this.bodyAngle, 0.15 * turretScale);
@@ -2338,17 +2457,30 @@ class PlayerTank extends Tank {
       // ⚠ 边沿:松手瞬间 → 根据蓄力时长发射(与原有机制完全一致,不改!)
       if (!spaceDown && this.laserPrevSpace){
         // [v58修复] 检查 fireTimer 冷却,防止快速连发
-        if (this.fireTimer > 0){
+        // —— [v62优化] 允许 fireTimer 残留≤120ms 时直接发射(移动端 pointerup 到下一帧间隔小,
+        //    否则极短冷却期内蓄力被误判为"冷却中"丢弃,表现为"蓄力了但没打出来"/"收放不自如")
+        if (this.fireTimer > 120){
           this.laserState = 'idle';
           this.laserChargeHoldAccum = 0;
         } else {
         const chargeMs = this.laserChargeHoldAccum;
+        // —— [v62优化] 移动端极短按(<40ms)视作误触, 不给 laser 也不吞掉蓄力计数器
+        //    (解决 快速点击射击按钮 → 本想打普通武器弹 → 结果被 laser 边沿触发当蓄力但又发不出, 手感差)
+        const IS_TOUCH = Input.isTouchDevice;
         if (isWeakThisFire){
           // 普通激光(弱): 固定 Lv1, 伤害只有一半, isWeak=true
           this.laserState = 'firing';
           this.fireLaser(game, 1, 1.0, true);
           this.attackCount = 0;
         } else {
+          if (IS_TOUCH && chargeMs < 40){
+            // 移动端误触短按:不发射激光,把按键当作普通武器一次射击
+            if (this.fireTimer <= 0){
+              this.fire(game);
+              this.attackCount++;
+            }
+            this.laserState = 'idle';
+          } else {
           // 激光武器: 根据蓄力时长判定 Lv1~5, isWeak=false
           let lv, mul;
           if (chargeMs < 150)      { lv = 1; mul = 1.0; }
@@ -2359,6 +2491,7 @@ class PlayerTank extends Tank {
           this.laserState = 'firing';
           this.fireLaser(game, lv, mul, false);
           this.attackCount = 0;
+        }
         }
         this.laserChargeHoldAccum = 0;
         setTimeout(()=>{ this.laserState = 'idle'; }, 120);
@@ -2632,7 +2765,7 @@ class PlayerTank extends Tank {
       const baseAng = this.turretAngle;
       const vx0 = Math.cos(baseAng), vy0 = Math.sin(baseAng);
       const perpX = -vy0, perpY = vx0;  // 垂直于炮管方向
-      const t = now / 60;
+      const t = Date.now() / 60;
 
       // 1) 炮口能量球(从小到大、颜色渐变,等级越高越偏紫)
       const ballSize = 3 + progress*14;
@@ -5434,6 +5567,26 @@ class Game {
     this.minimap = minimap;
     this.mctx = minimap.getContext('2d');
 
+    // —— [v62优化] 移动端/低性能设备 动态降级特效上限:
+    //    手机屏是低PPI/DPR的渲染开销也低,但CPU/内存往往弱于PC;
+    //    若为触屏设备,把粒子/子弹/激光等特效压到约60%,显著提升大爆炸/BOSS战时的流畅度
+    const IS_TOUCH = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+    if (IS_TOUCH){
+      this.MAX_PARTICLES = 420;     // 原700的60%
+      this.MAX_BULLETS   = 140;     // 原220的63%
+      this.MAX_LASERS    = 18;      // 原28的64%
+      this.MAX_DEBRIS    = 240;     // 原400的60%
+      this.MAX_LIGHTNINGS= 12;      // 原18的66%
+      this.FLAME_LIMIT   = 280;     // 火焰喷射粒子上限(移动端)
+    } else {
+      this.MAX_PARTICLES = 700;
+      this.MAX_BULLETS   = 220;
+      this.MAX_LASERS    = 28;
+      this.MAX_DEBRIS    = 400;
+      this.MAX_LIGHTNINGS= 18;
+      this.FLAME_LIMIT   = 450;
+    }
+
     // [v57] 多玩家存档槽: 首次运行迁移旧数据到 s0, 再读取当前槽位
     this.migrateSlot0IfNeeded();
     this.slot = this.loadSlot();
@@ -5499,12 +5652,17 @@ class Game {
     this.screenFlash = 0;     // 屏幕白闪 (0~1,击败/大爆炸用)
     this.vignette = 0;        // 暗角冲击 (0~1,爆炸瞬间加强)
     // —— 防卡机硬上限:超过就删最老的(头部) ——
-    this.MAX_PARTICLES = 700;
-    this.MAX_BULLETS  = 220;
-    this.MAX_LASERS   = 28;
-    this.MAX_DEBRIS   = 400;  // 砖瓦/爆炸碎片
-    this.MAX_LIGHTNINGS = 18; // 闪电链特效上限
-    this.MAX_FLAMES   = 260;  // 火焰粒子上限
+    // —— [v62优化] 这里不再写死,而是沿用上面 constructor 里按 触屏/PC 分开初始化好的值(避免被覆盖)
+    //    以下赋值仅在 非触屏设备 下存在,保证旧代码能找到这些属性
+    if (!this.MAX_FLAMES){
+      this.MAX_PARTICLES = 700;
+      this.MAX_BULLETS   = 220;
+      this.MAX_LASERS    = 28;
+      this.MAX_DEBRIS    = 400;
+      this.MAX_LIGHTNINGS= 18;
+      this.MAX_FLAMES    = 260;
+    }
+    this.MAX_FLAMES = Math.min(this.MAX_FLAMES || 260, this.FLAME_LIMIT || 999);
     this.MAX_BARRIERS = 4;    // 壁垒特效上限
     // —— 宠物 E 技能特效上限(防卡机) ——
     this.MAX_SCAN_PULSES   = 8;
@@ -6573,17 +6731,28 @@ class Game {
     let remain = Math.max(Math.abs(dx), Math.abs(dy));
     let moved = 0;
     if (remain < 0.01) return 0;
-    while (remain >= 0.01){
+    // [v60修复] 非有限值直接跳出;加迭代次数上限(2000),防止极端情况下卡死
+    if (!isFinite(remain)) return 0;
+    let iter = 0;
+    const ITER_MAX = 2000;
+    while (remain >= 0.01 && iter < ITER_MAX){
+      iter++;
       const step = Math.min(remain, 1.5);
+      if (!isFinite(step)) break;
       const nx = Util.clamp(t.x + sx*step, 0, W-t.w);
       const ny = Util.clamp(t.y + sy*step, 0, H-t.h);
       const c0=Util.toCell(nx), c1=Util.toCell(nx+t.w-1);
       const r0=Util.toCell(ny), r1=Util.toCell(ny+t.h-1);
       let ok = true;
+      if (!isFinite(c0)||!isFinite(c1)||!isFinite(r0)||!isFinite(r1)) break;
       for (let cy=r0; cy<=r1 && ok; cy++){
         for (let cx=c0; cx<=c1 && ok; cx++){
           if (cx<0||cx>=COLS||cy<0||cy>=ROWS){ ok=false; break; }
-          const tp = this.grid[cy][cx].type;
+          const row = this.grid[cy];
+          if (!row){ ok=false; break; }
+          const cell = row[cx];
+          if (!cell){ ok=false; break; }
+          const tp = cell.type;
           if (tp===T.BRICK||tp===T.STEEL||tp===T.WATER||tp===T.BASE) ok=false;
         }
       }
@@ -8942,18 +9111,58 @@ class Game {
 
   /* ---------- 主循环 ---------- */
   loop(time){
-    if (this._switchingSlot) return;  // [v57] 切换玩家中,停止循环防止回写旧数据
+    if (this._switchingSlot) { requestAnimationFrame(t => this.loop(t)); return; }  // [v57] 切换玩家中,停止循环防止回写旧数据
     const dt = Math.min(time - this.lastTime, 50) || 16;
     this.lastTime = time;
-    this.update(dt);
+    // [v60修复] 全局防护:任何 update/render 异常都不打断帧循环,防止"玩两下卡死"
+    // 历史经验(802196):一次未捕获异常就足以让 requestAnimationFrame 链永久中断,表现为页面冻结
+    try {
+      this.update(dt);
+    } catch(e){
+      this._crashCount = (this._crashCount||0) + 1;
+      this._recordCrash('update', e);
+    }
     // gameover/win 时只渲染一次静态画面(背景停下来),恢复后自动解冻
-    if (this.state === 'gameover' || this.state === 'win'){
-      if (!this._frozen){ this.render(); this._frozen = true; }
-    } else {
-      this._frozen = false;
-      this.render();
+    try {
+      if (this.state === 'gameover' || this.state === 'win'){
+        if (!this._frozen){ this.render(); this._frozen = true; }
+      } else {
+        this._frozen = false;
+        this.render();
+      }
+    } catch(e){
+      this._crashCount = (this._crashCount||0) + 1;
+      this._recordCrash('render', e);
     }
     requestAnimationFrame(t => this.loop(t));
+  }
+  // 记录崩溃(写入内存+localStorage双份,便于事后排查)
+  _recordCrash(stage, err){
+    try {
+      const entry = {
+        t: Date.now(),
+        stage: stage,
+        msg: (err && err.message) ? String(err.message) : String(err),
+        stack: (err && err.stack) ? String(err.stack).slice(0, 800) : null,
+        state: this.state,
+        level: this.level,
+        enemies: this.enemies ? this.enemies.length : null,
+        bullets: this.bullets ? this.bullets.length : null,
+        particles: this.particles ? this.particles.length : null
+      };
+      this._crashLogs = this._crashLogs || [];
+      this._crashLogs.push(entry);
+      if (this._crashLogs.length > 50) this._crashLogs.shift();
+      // 持久化: 只写最近20条
+      try {
+        localStorage.setItem('tank_battle_crashlogs', JSON.stringify(this._crashLogs.slice(-20)));
+      } catch(e2){}
+      // HUD 提示(最多显示一次提示,避免刷屏)
+      if (!this._lastCrashFlash || Date.now() - this._lastCrashFlash > 3000){
+        this._lastCrashFlash = Date.now();
+        this.flashMsg('⚠️ 异常自动恢复(' + this._crashCount + ')');
+      }
+    } catch(fatal){} // 防止记录函数自己又崩
   }
 }
 
@@ -9036,6 +9245,42 @@ window.addEventListener('DOMContentLoaded', () => {
 
   // 注册自动保存监听(页面隐藏/卸载时保存所有数据,防止中途退出丢失)
   game.setupAutoSave();
+
+  // —— [v60修复] 全局异常兜底:把页面所有未捕获错误/未处理Promise拒绝记入 localStorage,便于事后排查
+  // 即使主循环 try/catch 没兜住(例如初始化阶段、DOM事件回调里),也能定位根因
+  try {
+    window.addEventListener('error', e => {
+      try {
+        const entry = {
+          t: Date.now(),
+          type: 'error',
+          msg: e.message ? String(e.message) : '',
+          file: e.filename || '',
+          line: e.lineno || 0,
+          col: e.colno || 0,
+          stack: e.error && e.error.stack ? String(e.error.stack).slice(0, 1000) : null
+        };
+        const arr = JSON.parse(localStorage.getItem('tank_battle_crashlogs') || '[]');
+        arr.push(entry);
+        while (arr.length > 50) arr.shift();
+        localStorage.setItem('tank_battle_crashlogs', JSON.stringify(arr));
+      } catch(_){}
+    });
+    window.addEventListener('unhandledrejection', e => {
+      try {
+        const entry = {
+          t: Date.now(),
+          type: 'unhandledrejection',
+          reason: e.reason ? String(e.reason).slice(0, 500) : '',
+          stack: e.reason && e.reason.stack ? String(e.reason.stack).slice(0, 1000) : null
+        };
+        const arr = JSON.parse(localStorage.getItem('tank_battle_crashlogs') || '[]');
+        arr.push(entry);
+        while (arr.length > 50) arr.shift();
+        localStorage.setItem('tank_battle_crashlogs', JSON.stringify(arr));
+      } catch(_){}
+    });
+  } catch(_){}
 
   // 先加载资源,再启动循环(循环内根据state决定是否更新)
   game.startLoading();

@@ -122,8 +122,12 @@
     box-shadow:0 0 30px rgba(0,255,224,0.15), 0 0 60px rgba(0,0,0,0.6) inset;
     overflow:hidden;
     background:#000;
+    /* [v61修复] 触屏下禁止浏览器对游戏区的平移/缩放手势识别,防止摇杆拖动页面一起动 */
+    touch-action:none;
+    -webkit-touch-callout:none;
+    user-select:none; -webkit-user-select:none;
   }
-  #game-canvas{ display:block; width:100%; max-width:800px; aspect-ratio:1; height:auto; image-rendering:pixelated; }
+  #game-canvas{ display:block; width:100%; max-width:800px; aspect-ratio:1; height:auto; image-rendering:pixelated; touch-action:none; }
   #minimap{ display:block; width:100%; height:auto; border:1px solid var(--border); border-radius:4px; background:#04101a; image-rendering:pixelated; }
 
   /* 覆盖层(开始/暂停/结束/加载) */
@@ -741,6 +745,9 @@
   .touch-controls{
     position:absolute; bottom:0; left:0; right:0; top:0;
     pointer-events:none; z-index:5;
+    /* [v61修复] 整个控制层禁止浏览器手势识别,防止拖动时触发页面橡皮筋滚动 */
+    touch-action:none;
+    -webkit-touch-callout:none;
   }
   /* 虚拟摇杆(左下角) */
   .joystick{
@@ -749,6 +756,10 @@
     left:calc(20px + env(safe-area-inset-left));
     width:120px; height:120px;
     pointer-events:auto;
+    /* [v61修复] 摇杆区域强制禁滚动,手指滑出边界也不触发浏览器pan */
+    touch-action:none;
+    -webkit-touch-callout:none;
+    user-select:none; -webkit-user-select:none;
   }
   .joystick-base{
     position:absolute; inset:0;
@@ -773,6 +784,7 @@
     right:calc(20px + env(safe-area-inset-right));
     display:flex; align-items:flex-end; gap:12px;
     pointer-events:none;
+    touch-action:none;
   }
   .touch-btn{
     pointer-events:auto;
@@ -781,6 +793,9 @@
     cursor:pointer; user-select:none; -webkit-user-select:none;
     -webkit-tap-highlight-color:transparent;
     transition:transform .08s, box-shadow .08s;
+    /* [v61修复] 触摸按钮禁止浏览器pan手势,长按也不触发系统菜单 */
+    touch-action:none;
+    -webkit-touch-callout:none;
   }
   .touch-btn:active{ transform:scale(0.88); }
   .touch-btn span{ pointer-events:none; }
@@ -824,6 +839,7 @@
     right:calc(10px + env(safe-area-inset-right));
     display:flex; gap:8px;
     pointer-events:none;
+    touch-action:none;
   }
   .ws-btn{
     pointer-events:auto;
@@ -831,7 +847,10 @@
     background:rgba(4,8,20,0.7);
     border:1px solid var(--neon-dim);
     border-radius:6px; color:var(--neon); font-size:16px;
-    pointer-events:auto;
+    /* [v61修复] 武器切换按钮禁手势识别 */
+    touch-action:none;
+    -webkit-touch-callout:none;
+    user-select:none; -webkit-user-select:none;
   }
 </style>
 </head>
@@ -1112,6 +1131,6 @@
 
 </div>
 
-<script src="js/game.js?v=59"></script>
+<script src="js/game.js?v=63"></script>
 </body>
 </html>
