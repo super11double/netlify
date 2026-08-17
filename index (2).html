@@ -47,7 +47,7 @@
   #app{
     width:100%; max-width:1320px;
     display:grid;
-    grid-template-columns: 250px 800px 250px;
+    grid-template-columns: 250px minmax(0,1fr) 250px;
     grid-template-areas:
       "header header header"
       "left   game   right"
@@ -102,6 +102,7 @@
   .hp-fill{ height:100%; background:linear-gradient(90deg, var(--player), #22c55e); transition:width .2s; }
   .hp-text{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:11px; font-family:'Consolas',monospace; font-weight:700; text-shadow:0 0 3px #000; }
   .base-hp .hp-fill{ background:linear-gradient(90deg,#06b6d4,#3b82f6); }
+  .lvl-tag{ display:inline-block; margin-left:4px; padding:1px 6px; font-size:10px; font-weight:700; background:linear-gradient(90deg,#f59e0b,#dc2626); color:#fff; border-radius:10px; vertical-align:middle; }
 
   /* 操作说明 */
   .keys{ font-size:11px; line-height:1.7; color:var(--muted); }
@@ -122,7 +123,7 @@
     overflow:hidden;
     background:#000;
   }
-  #game-canvas{ display:block; width:800px; height:800px; image-rendering:pixelated; }
+  #game-canvas{ display:block; width:100%; max-width:800px; aspect-ratio:1; height:auto; image-rendering:pixelated; }
   #minimap{ display:block; width:100%; height:auto; border:1px solid var(--border); border-radius:4px; background:#04101a; image-rendering:pixelated; }
 
   /* 覆盖层(开始/暂停/结束/加载) */
@@ -130,7 +131,7 @@
     position:absolute; inset:0; z-index:5;
     background:rgba(4,8,20,0.88);
     backdrop-filter:blur(3px);
-    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    display:flex; flex-direction:column; align-items:center; justify-content:safe center;
     text-align:center; padding:30px;
     transition:opacity .25s;
     overflow-y:auto;
@@ -172,6 +173,15 @@
   .menu-credits .sep{ margin:0 10px; color:var(--border); }
   .menu-credits b#menu-credits{ color:#67e8f9; }
   .menu-credits b#menu-unlocked{ color:var(--neon); }
+
+  /* —— 多玩家存档槽 (v57) —— */
+  .slot-bar{ display:flex; gap:6px; align-items:center; justify-content:center; margin:0 0 12px; flex-wrap:wrap; }
+  .slot-label{ font-size:12px; color:var(--muted); }
+  .slot-btn{ padding:4px 14px; font-size:12px; border:1px solid var(--border); background:rgba(255,255,255,0.03); color:var(--muted); border-radius:6px; cursor:pointer; transition:all .15s; font-family:inherit; }
+  .slot-btn:hover{ color:var(--text); border-color:var(--neon); }
+  .slot-btn.active{ background:linear-gradient(180deg,rgba(0,255,224,0.18),rgba(0,255,224,0.04)); border-color:var(--neon); color:var(--neon); box-shadow:0 0 8px rgba(0,255,224,0.25); }
+  .slot-reset{ padding:4px 12px; font-size:11px; border:1px solid rgba(239,68,68,0.4); background:rgba(239,68,68,0.08); color:#f87171; border-radius:6px; cursor:pointer; margin-left:10px; font-family:inherit; }
+  .slot-reset:hover{ background:rgba(239,68,68,0.2); color:#fca5a5; }
 
   .menu-tabs{ display:flex; gap:6px; margin-bottom:14px; }
   .mtab{
@@ -288,6 +298,63 @@
     box-shadow:0 0 16px rgba(245,158,11,0.6);
   }
 
+  /* ============ 升级数值显示 (宠物/坦克/武器通用) ============ */
+  .shop-item .pet-lv-tag{
+    display:inline-block; margin-left:6px; padding:1px 6px;
+    font-size:10px; font-weight:700; color:#fbbf24;
+    background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.5);
+    border-radius:3px; font-family:'Consolas',monospace;
+  }
+  .shop-item .lv-bar{
+    display:flex; gap:2px; margin:4px 0 2px;
+  }
+  .shop-item .lv-dot{
+    flex:1; height:6px; font-size:0; line-height:6px;
+    background:rgba(255,255,255,0.06); border-radius:2px;
+    transition:all 0.2s;
+  }
+  .shop-item .lv-dot.on{
+    background:linear-gradient(180deg, #fde68a, #f59e0b);
+    box-shadow:0 0 4px rgba(245,158,11,0.6);
+  }
+  .shop-item .lv-dot.cur{
+    background:linear-gradient(180deg, #67e8f9, #0aa);
+    box-shadow:0 0 6px rgba(0,255,224,0.7);
+    animation:lvPulse 1.4s ease-in-out infinite;
+  }
+  @keyframes lvPulse{ 0%,100%{ opacity:0.7; } 50%{ opacity:1; } }
+  .shop-item .s-stats{
+    display:flex; flex-wrap:wrap; gap:4px 10px;
+    margin-top:4px; padding:5px 7px;
+    background:rgba(0,0,0,0.3); border:1px solid var(--border);
+    border-radius:4px;
+  }
+  .shop-item .s-stats span{
+    font-size:10px; color:var(--muted);
+    font-family:'Consolas',monospace;
+    white-space:nowrap;
+  }
+  .shop-item .s-stats b{
+    color:var(--neon); font-weight:700;
+  }
+  .shop-item .s-stats .up-arrow{
+    color:#fbbf24; font-style:normal; font-size:9px;
+    margin-left:2px; font-weight:700;
+  }
+  .shop-item .s-btns{
+    display:flex; flex-direction:column; gap:4px; flex-shrink:0;
+    min-width:70px;
+  }
+  .shop-item .s-btns .s-buy{ width:100%; }
+  .shop-item .s-buy.up{
+    border-color:#fbbf24; color:#fbbf24;
+    background:rgba(245,158,11,0.12);
+  }
+  .shop-item .s-buy.up:hover:not(.disabled){
+    background:#fbbf24; color:#04101a;
+    box-shadow:0 0 12px rgba(251,191,36,0.6);
+  }
+
   /* ============ 商店浮层(view-shop) ============ */
   .ov-shop{ max-width:680px; }
   .ov-shop h2{ color:var(--neon); text-shadow:0 0 10px rgba(0,255,224,0.4); margin-bottom:12px; }
@@ -306,6 +373,8 @@
   .shop-content::-webkit-scrollbar-thumb{ background:var(--neon-dim); border-radius:3px; }
   .equipped-passives{ margin-top:12px; padding:10px; background:rgba(0,0,0,0.25); border:1px solid var(--border); border-radius:6px; }
   .eq-title{ font-size:11px; color:var(--neon-dim); letter-spacing:1px; margin-bottom:8px; text-transform:uppercase; }
+  .eq-row{ display:flex; align-items:center; gap:6px; margin-bottom:6px; font-size:11px; }
+  .eq-row-label{ color:var(--neon-dim); min-width:52px; flex-shrink:0; }
   .eq-slots{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; }
   .eq-slot{
     display:flex; align-items:center; gap:6px; background:rgba(0,0,0,0.3); border:1px solid var(--border);
@@ -314,7 +383,16 @@
   .eq-slot.empty{ opacity:0.35; justify-content:center; }
   .eq-slot .ico{ font-size:16px; flex-shrink:0; }
   .eq-slot .nm{ flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  #close-shop-btn{ margin-top:14px; width:100%; }
+  .eq-chips{ display:flex; flex-wrap:wrap; gap:4px; flex:1; }
+  .eq-chip{
+    display:inline-flex; align-items:center; gap:3px; background:rgba(0,0,0,0.3); border:1px solid var(--border);
+    border-radius:4px; padding:3px 7px; font-size:10px; color:var(--text);
+  }
+  .eq-chip.active{ border-color:var(--neon-dim); color:var(--neon-dim); }
+  .eq-chip .ico{ font-size:13px; }
+  #close-shop-btn{ margin-top:14px; width:100%; flex-shrink:0; }
+  /* [v58修复] 商店视图底部留出足够空间,确保关闭按钮始终可达 */
+  .ov-shop{ max-width:680px; padding-bottom:20px; }
 
   .result-btns{ display:flex; gap:10px; margin-top:18px; }
   .result-btns .btn{ margin-top:0; }
@@ -361,11 +439,11 @@
     padding:10px 14px;
   }
   footer h3{ font-size:11px; letter-spacing:2px; color:var(--neon-dim); margin-bottom:8px; }
-  .weapon-bar{ display:grid; grid-template-columns:repeat(7,1fr); gap:6px; }
+  .weapon-bar{ display:grid; grid-template-columns:repeat(9,1fr); gap:4px; }
   .weapon{
     position:relative; cursor:pointer;
     background:rgba(0,0,0,0.3); border:1px solid var(--border);
-    border-radius:6px; padding:8px 4px; text-align:center;
+    border-radius:6px; padding:8px 3px; text-align:center;
     transition:all .12s; overflow:hidden;
   }
   .weapon:hover{ border-color:var(--neon-dim); }
@@ -375,6 +453,14 @@
   }
   .weapon.locked{ opacity:0.4; cursor:not-allowed; }
   .weapon .num{ position:absolute; top:3px; left:5px; font-size:10px; color:var(--muted); font-family:'Consolas',monospace; }
+  .weapon .wlv{
+    position:absolute; top:2px; right:4px;
+    font-size:9px; font-weight:700; font-family:'Consolas',monospace;
+    color:#fbbf24; background:rgba(245,158,11,0.15);
+    padding:0 3px; border-radius:2px; border:1px solid rgba(245,158,11,0.45);
+    line-height:12px;
+  }
+  .weapon.laser-slot .wlv{ color:#a855f7; background:rgba(168,85,247,0.15); border-color:rgba(168,85,247,0.5); }
   .weapon .wicon{ font-size:22px; }
   .weapon .wname{ font-size:10px; margin-top:2px; color:var(--text); }
   .weapon .wcd{ position:absolute; bottom:0; left:0; height:3px; background:var(--warn); width:0; transition:width .05s linear; }
@@ -465,10 +551,190 @@
   .credit{ font-size:10px; color:var(--muted); text-align:center; margin-top:6px; letter-spacing:1px; }
   .credit b{ color:var(--neon); }
 
-  /* 响应式:小屏缩放 */
-  @media (max-width:1340px){
-    #app{ grid-template-columns:220px 720px 220px; }
-    #game-canvas{ width:720px; height:720px; }
+  /* ============ 响应式断点系统 ============ */
+
+  /* —— 大屏PC (≥1350px): 三栏布局,Canvas 800px —— */
+  /* (默认布局已适配,无需额外规则) */
+
+  /* —— 中等屏幕PC/小平板 (1000-1349px): 侧栏收窄,Canvas自适应 —— */
+  @media (max-width:1349px){
+    #app{
+      grid-template-columns:200px minmax(0,1fr) 200px;
+      gap:8px;
+    }
+    header .title{ font-size:18px; letter-spacing:2px; }
+    header .stat{ padding:3px 10px; min-width:64px; }
+    header .stat .val{ font-size:15px; }
+    aside.left, aside.right{ gap:6px; }
+    .panel{ padding:8px; }
+    .panel h3{ font-size:10px; }
+    #minimap{ max-width:180px; margin:0 auto; }
+  }
+
+  /* —— 小屏幕平板/大手机 (768-999px): 双栏,侧栏合并到底部 —— */
+  @media (max-width:999px){
+    body{ padding:4px; }
+    #app{
+      grid-template-columns:1fr;
+      grid-template-areas:
+        "header"
+        "game"
+        "left"
+        "right"
+        "footer";
+      gap:4px;
+    }
+    .game-area{ width:100%; max-width:640px; margin:0 auto; }
+    /* 侧栏横向排列,紧凑显示 */
+    aside{
+      flex-direction:row !important;
+      flex-wrap:wrap; gap:4px;
+    }
+    aside .panel{ flex:1; min-width:140px; padding:6px 8px !important; }
+    aside .panel h3{ font-size:10px; margin-bottom:4px; }
+    /* 隐藏操作说明面板(小屏节省空间) */
+    aside .panel:has(.keys){ display:none; }
+    #minimap{ max-width:120px; }
+    /* HUD按钮缩小 */
+    .hud-btn{ width:34px; height:34px; font-size:15px; }
+    /* 顶部紧凑 */
+    header{ padding:6px 10px; flex-wrap:wrap; gap:6px; }
+    header .title{ font-size:15px; }
+    header .stat-row{ gap:8px; }
+    header .stat{ padding:2px 8px; min-width:56px; }
+    header .stat .val{ font-size:14px; }
+    header .stat .lbl{ font-size:9px; }
+    /* 武器栏紧凑 */
+    .weapon-bar{ gap:4px; }
+    .weapon{ padding:6px 2px; }
+    .weapon .wicon{ font-size:18px; }
+    .weapon .wname{ font-size:9px; }
+    footer{ padding:6px 8px; }
+    footer h3{ font-size:10px; }
+  }
+
+  /* —— 手机端 (<768px): 全屏优化 —— */
+  @media (max-width:767px){
+    body{
+      padding:0;
+      padding-top:env(safe-area-inset-top);
+      padding-bottom:env(safe-area-inset-bottom);
+    }
+    #app{ gap:2px; }
+    /* 顶部栏极简 */
+    header{
+      padding:4px 8px;
+      border-radius:0;
+      flex-wrap:nowrap;
+      overflow:hidden;
+    }
+    header .title{ font-size:13px; letter-spacing:1px; }
+    header .title small{ display:none; }
+    header .stat-row{ gap:4px; }
+    header .stat{
+      padding:2px 6px; min-width:44px; border-radius:4px;
+    }
+    header .stat .val{ font-size:13px; }
+    header .stat .lbl{ font-size:8px; }
+    /* Canvas 尽可能占满屏幕 */
+    .game-area{
+      width:100vw; max-width:100vw;
+      border-radius:0; border:none;
+      box-shadow:none;
+    }
+    .game-area #game-canvas{
+      width:100vw; max-width:100vw;
+      max-height:calc(100vh - 120px);
+    }
+    /* 侧栏:仅保留关键信息,横向滚动 */
+    aside.left{
+      flex-direction:row !important;
+      flex-wrap:nowrap; overflow-x:auto;
+      padding:0; gap:2px; max-height:none;
+      scrollbar-width:none;
+    }
+    aside.left::-webkit-scrollbar{ display:none; }
+    aside.left .panel{
+      flex-shrink:0; min-width:110px; padding:4px 6px !important;
+      border-radius:4px;
+    }
+    aside.left .panel h3{ font-size:9px; margin-bottom:2px; padding-bottom:2px; }
+    .hp-wrap{ height:14px; }
+    .hp-text{ font-size:9px; }
+    /* 右侧栏:只保留小地图 */
+    aside.right{
+      flex-direction:row !important;
+      flex-wrap:wrap; gap:4px; padding:0;
+    }
+    aside.right .panel{ flex:1; min-width:120px; padding:4px 6px !important; }
+    aside.right .panel:not(:first-child){ display:none; } /* 仅显示小地图 */
+    #minimap{ max-width:100px; }
+    /* HUD按钮:更小,靠边 */
+    .game-hud-btns{ top:4px; right:4px; gap:3px; }
+    .hud-btn{ width:30px; height:30px; font-size:13px; border-radius:5px; }
+    .hud-btn-tip{ display:none; }
+    /* 武器栏:可横向滚动 */
+    footer{ padding:4px 6px; border-radius:0; }
+    footer h3{ font-size:9px; margin-bottom:4px; }
+    .weapon-bar{
+      display:flex; flex-wrap:nowrap; overflow-x:auto;
+      gap:3px; scrollbar-width:none;
+    }
+    .weapon-bar::-webkit-scrollbar{ display:none; }
+    .weapon{
+      flex-shrink:0; min-width:42px; padding:4px 2px;
+    }
+    .weapon .wicon{ font-size:16px; }
+    .weapon .wname{ font-size:8px; }
+    .weapon .num{ font-size:8px; }
+    /* 覆盖层全屏 */
+    .overlay{ padding:12px; }
+    .ov-view{ max-width:100vw !important; padding:8px !important; }
+    .overlay h2{ font-size:22px; letter-spacing:2px; }
+    .overlay p{ font-size:12px; }
+    .level-grid{ grid-template-columns:repeat(3,1fr) !important; gap:6px; }
+    .level-card{ padding:10px 4px; }
+    .level-card .lv-num{ font-size:20px; }
+    .level-card .lv-name{ font-size:10px; }
+    .shop-list{ grid-template-columns:1fr !important; }
+    .shop-item{ flex-direction:row; gap:6px; padding:8px; }
+    .shop-item .s-ico{ font-size:20px; width:28px; }
+    .shop-item .s-name{ font-size:12px; }
+    .shop-item .s-desc{ font-size:9px; }
+    .shop-item .s-buy{ padding:4px 8px; font-size:10px; min-width:50px; }
+    .shop-header{ flex-direction:column; gap:6px; align-items:stretch; }
+    .shop-tabs{ justify-content:center; }
+    .stab{ padding:4px 10px; font-size:11px; }
+    .shop-content{ max-height:50vh; }
+    .eq-slots{ grid-template-columns:1fr; gap:4px; }
+    .endless-entry{ flex-wrap:wrap; gap:8px; padding:10px; }
+    .endless-icon{ font-size:32px; }
+    .endless-name{ font-size:14px; }
+    .endless-desc{ font-size:11px; }
+    .endless-btn{ padding:8px 16px; font-size:13px; }
+    .menu-credits{ font-size:12px; padding:6px 12px; text-align:center; }
+    .menu-tabs{ justify-content:center; }
+    .mtab{ padding:6px 16px; font-size:12px; }
+    .btn{ padding:8px 20px; font-size:13px; }
+    .result-btns{ flex-direction:column; gap:6px; }
+    .result-btns .btn{ width:100%; }
+  }
+
+  /* —— 小手机 (<400px): 进一步紧凑 —— */
+  @media (max-width:399px){
+    header .stat-row{ gap:2px; }
+    header .stat{ padding:1px 4px; min-width:38px; }
+    header .stat .val{ font-size:11px; }
+    header .stat .lbl{ font-size:7px; }
+    header .title{ font-size:11px; }
+    .level-grid{ grid-template-columns:repeat(2,1fr) !important; }
+    .joystick{ width:90px; height:90px; bottom:10px; left:10px; }
+    .joystick-stick{ width:38px; height:38px; margin:-19px 0 0 -19px; }
+    .fire-btn{ width:62px; height:62px; font-size:22px; }
+    .item-btn{ width:44px; height:44px; font-size:16px; }
+    .action-buttons{ bottom:10px; right:10px; gap:8px; }
+    .weapon-switch{ top:40px; right:4px; gap:4px; }
+    .ws-btn{ width:34px; height:34px; font-size:14px; }
   }
 
   /* ============ 移动端虚拟控制器 ============ */
@@ -478,7 +744,9 @@
   }
   /* 虚拟摇杆(左下角) */
   .joystick{
-    position:absolute; bottom:20px; left:20px;
+    position:absolute;
+    bottom:calc(20px + env(safe-area-inset-bottom));
+    left:calc(20px + env(safe-area-inset-left));
     width:120px; height:120px;
     pointer-events:auto;
   }
@@ -500,7 +768,9 @@
   }
   /* 动作按钮组(右下角) */
   .action-buttons{
-    position:absolute; bottom:20px; right:20px;
+    position:absolute;
+    bottom:calc(20px + env(safe-area-inset-bottom));
+    right:calc(20px + env(safe-area-inset-right));
     display:flex; align-items:flex-end; gap:12px;
     pointer-events:none;
   }
@@ -535,9 +805,23 @@
     box-shadow:0 0 12px rgba(168,85,247,0.4);
     font-size:22px;
   }
+  /* 神技按钮(中-右) */
+  .skill-btn{
+    width:60px; height:60px;
+    background:radial-gradient(circle, rgba(251,191,36,0.5), rgba(180,100,20,0.25));
+    border:2px solid #fbbf24;
+    box-shadow:0 0 16px rgba(251,191,36,0.5);
+    font-size:24px;
+  }
+  .skill-btn:active{
+    background:radial-gradient(circle, rgba(251,191,36,0.85), rgba(180,100,20,0.45));
+    box-shadow:0 0 22px rgba(251,191,36,0.8);
+  }
   /* 武器切换按钮(右上角) */
   .weapon-switch{
-    position:absolute; top:60px; right:10px;
+    position:absolute;
+    top:calc(60px + env(safe-area-inset-top));
+    right:calc(10px + env(safe-area-inset-right));
     display:flex; gap:8px;
     pointer-events:none;
   }
@@ -548,57 +832,6 @@
     border:1px solid var(--neon-dim);
     border-radius:6px; color:var(--neon); font-size:16px;
     pointer-events:auto;
-  }
-
-  /* ============ 手机端响应式(< 900px) ============ */
-  @media (max-width:900px){
-    #app{
-      grid-template-columns:1fr !important;
-      grid-template-rows:auto 1fr auto;
-      padding:4px; gap:4px;
-    }
-    /* 侧边栏移到底部紧凑显示 */
-    aside{
-      flex-direction:row !important;
-      flex-wrap:wrap; gap:4px; padding:4px !important;
-      max-height:120px; overflow-y:auto;
-    }
-    aside .panel{ flex:1; min-width:100px; padding:4px 6px !important; }
-    aside .panel h3{ font-size:9px; }
-    aside .panel .hp-text{ font-size:10px; }
-    /* Canvas 自适应屏幕宽度 */
-    .game-area{ position:relative; width:100%; max-width:100vw; }
-    #game-canvas{
-      width:100% !important; height:auto !important;
-      max-width:100vw; max-height:75vh;
-      aspect-ratio:1; touch-action:none;
-    }
-    /* HUD 按钮缩小 */
-    .hud-btn{ width:32px; height:32px; font-size:14px; }
-    .hud-btn-tip{ display:none; }
-    /* 顶部标题缩小 */
-    header .title{ font-size:14px; }
-    header{ padding:4px 8px; }
-    /* 武器栏紧凑 */
-    .weapon-bar{ gap:3px !important; }
-    .weapon{ padding:4px 2px; }
-    .weapon .wicon{ font-size:18px; }
-    .weapon .wname{ font-size:9px; }
-    /* 菜单/商店全屏 */
-    .ov-view{ max-width:95vw !important; max-height:95vh !important; padding:12px !important; }
-    .ov-view h2{ font-size:18px; }
-    .level-grid{ grid-template-columns:repeat(3,1fr) !important; }
-    .shop-item{ flex-direction:column; text-align:center; gap:4px; }
-    .endless-entry{ flex-wrap:wrap; }
-    /* 虚拟控制器显示由JS控制(根据设备类型+游戏状态),CSS仅控制内部布局 */
-  }
-  @media (max-width:480px){
-    aside{ max-height:90px; }
-    .joystick{ width:100px; height:100px; bottom:12px; left:12px; }
-    .joystick-stick{ width:42px; height:42px; margin:-21px 0 0 -21px; }
-    .fire-btn{ width:68px; height:68px; font-size:24px; }
-    .item-btn{ width:48px; height:48px; font-size:18px; }
-    .level-grid{ grid-template-columns:repeat(2,1fr) !important; }
   }
 </style>
 </head>
@@ -619,12 +852,32 @@
   <!-- ============ 左侧面板 ============ -->
   <aside class="left">
     <div class="panel">
-      <h3>坦克血量</h3>
+      <h3><span id="player-tank-icon">🟢</span> <span id="player-tank-name">T-01 先锋</span> <span class="lvl-tag" id="player-tank-lvl">Lv1</span></h3>
+      <div style="font-size:10px;color:var(--muted);margin-bottom:4px;">
+        <span id="player-tank-weapon">🔵 普通炮弹 Lv1</span>
+      </div>
       <div class="hp-wrap"><div class="hp-fill" id="player-hp-fill" style="width:100%"></div><div class="hp-text" id="player-hp-text">100/100</div></div>
     </div>
     <div class="panel">
       <h3>基地血量</h3>
       <div class="hp-wrap base-hp"><div class="hp-fill" id="base-hp-fill" style="width:100%"></div><div class="hp-text" id="base-hp-text">100/100</div></div>
+    </div>
+    <div class="panel" id="pet-panel" style="display:none;">
+      <h3><span id="pet-icon">🛰️</span> <span id="pet-name">战术宠物</span> <span class="lvl-tag" id="pet-lvl">Lv1</span></h3>
+      <div class="hp-wrap"><div class="hp-fill" id="pet-hp-fill" style="width:100%;background:linear-gradient(90deg,#a78bfa,#6366f1);"></div><div class="hp-text" id="pet-hp-text">80/80</div></div>
+      <div style="margin-top:6px;">
+        <div style="font-size:10px;color:var(--muted);margin-bottom:2px;">经验 <span id="pet-exp-text" style="float:right;color:#a78bfa;">0/120</span></div>
+        <div class="hp-wrap" style="height:6px;">
+          <div class="hp-fill" id="pet-exp-fill" style="width:0%;background:linear-gradient(90deg,#c4b5fd,#8b5cf6);"></div>
+        </div>
+      </div>
+      <div style="margin-top:6px;">
+        <div style="font-size:10px;color:var(--muted);margin-bottom:2px;">神技(E) <span id="pet-cd-text" style="float:right;color:#fbbf24;">就绪</span></div>
+        <div class="hp-wrap" style="height:6px;">
+          <div class="hp-fill" id="pet-cd-fill" style="width:100%;background:linear-gradient(90deg,#fde68a,#f59e0b);"></div>
+        </div>
+      </div>
+      <div style="font-size:10px;color:var(--muted);margin-top:6px;text-align:center;" id="pet-state-tag">🟢 跟随作战</div>
     </div>
     <div class="panel">
       <h3>敌人剩余</h3>
@@ -670,6 +923,10 @@
         <button class="touch-btn item-btn" id="touch-item" title="使用道具">
           <span>🎒</span>
           <span class="touch-btn-label">道具</span>
+        </button>
+        <button class="touch-btn skill-btn" id="touch-skill" title="专属神技(F)">
+          <span>⚡</span>
+          <span class="touch-btn-label">神技</span>
         </button>
         <button class="touch-btn fire-btn" id="touch-fire" title="射击">
           <span>🔥</span>
@@ -723,6 +980,14 @@
           🏆 最高分 <b id="menu-high">0</b>
           <span class="sep">·</span>
           🔓 已解锁 <b id="menu-unlocked">1</b> 关
+        </div>
+
+        <div class="slot-bar" id="slot-bar">
+          <span class="slot-label">👤 玩家</span>
+          <button class="slot-btn active" data-slot="0">玩家1</button>
+          <button class="slot-btn" data-slot="1">玩家2</button>
+          <button class="slot-btn" data-slot="2">玩家3</button>
+          <button class="slot-reset" id="slot-reset-btn">重置当前</button>
         </div>
 
         <div class="menu-tabs">
@@ -781,14 +1046,16 @@
             <button class="stab active" data-stab="passive">被动装备</button>
             <button class="stab" data-stab="item">消耗道具</button>
             <button class="stab" data-stab="weapon">武器解锁</button>
+            <button class="stab" data-stab="tank">坦克皮肤</button>
+            <button class="stab" data-stab="pet">战术宠物</button>
           </div>
         </div>
         <!-- 通关推荐提示(仅通关后显示) -->
         <div class="shop-hint" id="shop-hint" style="display:none;"></div>
         <div class="shop-content" id="shop-content"></div>
         <div class="equipped-passives">
-          <div class="eq-title">已装备被动 (最多3件):</div>
-          <div class="eq-slots" id="eq-slots"></div>
+          <div class="eq-title">当前装备概览 (换皮/换宠物不影响以下装备):</div>
+          <div id="eq-overview"></div>
         </div>
         <button class="btn" id="close-shop-btn">返回战斗</button>
       </div>
@@ -801,6 +1068,17 @@
     <div class="panel">
       <h3>迷你地图</h3>
       <canvas id="minimap" width="220" height="220"></canvas>
+    </div>
+    <div class="panel">
+      <h3>外装 (坦克皮肤 · 只能装备1个)</h3>
+      <div id="skin-slot" style="display:flex;gap:6px;align-items:center;padding:6px 8px;border-radius:8px;background:rgba(124,58,237,0.08);border:1px solid rgba(124,58,237,0.35);">
+        <div id="skin-icon" style="font-size:26px;line-height:1;">🟢</div>
+        <div style="flex:1;min-width:0;">
+          <div id="skin-name" style="font-size:13px;font-weight:700;color:#e9d5ff;">T-01 先锋 <span id="skin-lvl" class="lvl-tag">Lv1</span></div>
+          <div id="skin-desc" style="font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">标准主战坦克 · 各项性能均衡</div>
+        </div>
+      </div>
+      <div style="font-size:9px;color:var(--muted);text-align:center;margin-top:4px;">战斗外前往<b style="color:#fbbf24">商店-坦克</b>切换型号</div>
     </div>
     <div class="panel">
       <h3>被动装备 (3/3)</h3>
@@ -834,6 +1112,6 @@
 
 </div>
 
-<script src="js/game.js?v=27"></script>
+<script src="js/game.js?v=59"></script>
 </body>
 </html>

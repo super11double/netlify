@@ -26,6 +26,7 @@
         <div class="menu-btns">
           <button class="neon-btn" data-action="start">▶ 开始游戏</button>
           <button class="neon-btn" data-action="mode">🎮 选择模式</button>
+          <button class="neon-btn" data-action="shop">🛒 积分商店</button>
           <button class="neon-btn" data-action="hangar">✈️ 战机仓库</button>
           <button class="neon-btn" data-action="rank">🏆 战绩排行</button>
           <button class="neon-btn" data-action="settings">⚙️ 游戏设置</button>
@@ -33,6 +34,7 @@
         <div class="title-footer">
           <span>v1.0</span>
           <span>最高分: <b id="title-highscore">0</b></span>
+          <span>💰 积分: <b id="title-points">0</b></span>
         </div>
       </div>
 
@@ -44,6 +46,11 @@
             <span class="mode-icon">🎯</span>
             <span class="mode-name">闯关模式</span>
             <span class="mode-desc">6章主线 · Boss决战</span>
+          </button>
+          <button class="mode-card" data-action="levels">
+            <span class="mode-icon">🗺</span>
+            <span class="mode-name">关卡选择</span>
+            <span class="mode-desc">已解锁关卡 · 任意挑战</span>
           </button>
           <button class="mode-card" data-mode="endless">
             <span class="mode-icon">♾️</span>
@@ -64,6 +71,33 @@
         <h2 class="screen-title">战机仓库</h2>
         <div id="hangar-list" class="hangar-list"></div>
         <div id="hangar-detail" class="hangar-detail"></div>
+        <button class="neon-btn ghost" data-action="back-title">← 返回</button>
+      </div>
+
+      <!-- 积分商店 -->
+      <div id="screen-shop" class="screen">
+        <h2 class="screen-title">🛒 积分商店
+          <span class="shop-points">💰 <b id="shop-points">0</b></span>
+        </h2>
+        <div class="shop-tabs" id="shop-tabs">
+          <button class="neon-btn tab active" data-shop-tab="equip">装备</button>
+          <button class="neon-btn tab" data-shop-tab="skill">技能</button>
+          <button class="neon-btn tab" data-shop-tab="plane">✈️ 战机</button>
+          <button class="neon-btn tab" data-shop-tab="upgrade">强化</button>
+          <button class="neon-btn tab" data-shop-tab="chest">宝箱</button>
+        </div>
+        <div id="shop-list" class="shop-list"></div>
+        <!-- 已拥有 / 装备装配 面板 -->
+        <div class="shop-panel">
+          <div class="shop-panel-col">
+            <h3>已装备（至少 1 件）</h3>
+            <div id="shop-equipped" class="shop-equipped"></div>
+          </div>
+          <div class="shop-panel-col">
+            <h3>技能槽（Q / E / R，最多 3 个）</h3>
+            <div id="shop-skills" class="shop-skills"></div>
+          </div>
+        </div>
         <button class="neon-btn ghost" data-action="back-title">← 返回</button>
       </div>
 
@@ -116,6 +150,14 @@
             <div class="bar"><div id="bar-sp" class="bar-fill sp"></div></div>
             <span id="hud-combo" class="hud-combo">×0</span>
           </div>
+          <!-- 关卡进度条：仅闯关模式 level 显示 -->
+          <div class="bar-row" id="level-progress-wrap" style="display:none">
+            <span class="bar-label" title="关卡进度">🗺️</span>
+            <div class="bar">
+              <div id="bar-level" class="bar-fill level"></div>
+            </div>
+            <span id="hud-level-pct" class="level-pct">0%</span>
+          </div>
         </div>
         <div class="hud-stats">
           <span class="stat">🛡<b id="hud-shield">0</b></span>
@@ -151,18 +193,39 @@
       <div id="screen-result" class="screen overlay">
         <h2 id="result-title" class="screen-title">胜利</h2>
         <div id="result-body" class="result-body"></div>
-        <div class="menu-btns">
+        <div id="result-actions" class="menu-btns">
+          <!-- 默认按钮（失败 / 非闯关） -->
           <button class="neon-btn" data-action="restart">🔄 再来一局</button>
           <button class="neon-btn ghost" data-action="quit">🚪 主菜单</button>
         </div>
+      </div>
+
+      <!-- 选关界面 -->
+      <div id="screen-levels" class="screen">
+        <h2 class="screen-title">🗺 关卡选择
+          <span style="font-size:14px;font-weight:400;color:var(--text-secondary);margin-left:12px;">通过当前关卡解锁下一关</span>
+        </h2>
+        <div id="levels-progress" style="text-align:center;margin-bottom:12px;color:var(--text-secondary);"></div>
+        <div id="levels-grid" class="levels-grid"></div>
+        <button class="neon-btn ghost" data-action="mode" style="margin-top:20px;">← 选择模式</button>
       </div>
 
       <!-- 调试面板 -->
       <div id="debug-panel" class="debug-panel" style="display:none"></div>
     </div>
 
-    <!-- 移动端虚拟按键 -->
-    <button id="touch-skill" class="touch-skill" data-action="skill">💥</button>
+    <!-- 移动端虚拟控制组 -->
+    <div class="touch-controls">
+      <div id="touch-joystick-zone" class="touch-joystick-zone"></div>
+      <div class="touch-buttons">
+        <button id="touch-skill" class="v-btn touch-skill" data-action="skill" title="必杀技">
+          💥<span id="touch-skill-cd" style="position:absolute;font-size:13px;font-weight:700;"></span>
+        </button>
+        <button id="touch-bomb" class="v-btn touch-bomb" data-action="bomb" title="炸弹">
+          💣<span id="touch-bomb-count" style="position:absolute;font-size:12px;font-weight:700;bottom:-2px;right:-2px;background:var(--neon-orange);border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;">3</span>
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- ====== 脚本加载顺序：工具 → 配置 → 实体 → 核心 → 系统 → 主类 → 入口 ====== -->
@@ -176,7 +239,11 @@
   <script src="js/config/bossData.js"></script>
   <script src="js/config/itemData.js"></script>
   <script src="js/config/skillData.js"></script>
+  <script src="js/config/equipData.js"></script>
+  <script src="js/config/shopData.js"></script>
+  <script src="js/config/dropTable.js"></script>
   <script src="js/config/waveData.js"></script>
+  <script src="js/config/chipData.js"></script>
 
   <script src="js/entities/Particle.js"></script>
   <script src="js/entities/Bullet.js"></script>
@@ -194,6 +261,10 @@
   <script src="js/systems/UISystem.js"></script>
   <script src="js/systems/SaveSystem.js"></script>
   <script src="js/systems/SkillSystem.js"></script>
+  <script src="js/systems/EquipSystem.js"></script>
+  <script src="js/systems/ActiveSkillSystem.js"></script>
+  <script src="js/systems/ShopSystem.js"></script>
+  <script src="js/systems/ScoreSystem.js"></script>
   <script src="js/systems/SpawnSystem.js"></script>
   <script src="js/systems/WaveSystem.js"></script>
 
