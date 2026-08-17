@@ -11,6 +11,8 @@ while ($listener.IsListening) {
   $res = $ctx.Response
   $path = $req.Url.AbsolutePath
   if ($path -eq "/") { $path = "/index.html" }
+  # 中文文件名需要 URL 解码:HttpListener 的 AbsolutePath 不会自动解码 %XX 转义
+  $path = [System.Uri]::UnescapeDataString($path)
   $rel = $path -replace "^/","" -replace "/","\"
   $filePath = Join-Path $root $rel
   if (Test-Path $filePath -PathType Leaf) {
@@ -24,11 +26,13 @@ while ($listener.IsListening) {
       ".jpeg" { "image/jpeg" }
       default { "application/octet-stream" }
     }
-    $bytes = [System.IO.File]::ReadAllBytes($filePath)
+    # 注意:必须先设置所有 Header/ContentType,最后才能设置 ContentLength64 并写流
+    # 否则 .NET HttpListener 会抛 ProtocolViolationException,导致响应失败
     $res.ContentType = $ct
+    $res.AddHeader("Cache-Control", "no-cache, no-store, must-revalidate")
+    $res.AddHeader("Pragma", "no-cache")
+    $bytes = [System.IO.File]::ReadAllBytes($filePath)
     $res.ContentLength64 = $bytes.Length
-    $res.Headers.Set("Cache-Control", "no-cache, no-store, must-revalidate")
-    $res.Headers.Set("Pragma", "no-cache")
     $res.OutputStream.Write($bytes, 0, $bytes.Length)
   } else {
     $res.StatusCode = 404
